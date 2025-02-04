@@ -9,22 +9,37 @@ import Foundation
 import ComposableArchitecture
 
 struct MoviesListReducer: Reducer {
-    
+    @Dependency(\.apiClient) var apiClient
     var body: some ReducerOf<MoviesListReducer> {
         Reduce { state, action in
             switch action {
-                
+            case .fetchMoviesListFromPath(let path):
+                return .run { send in
+                    do {
+                        if let url = URL(string: path) {
+                            let fetchedMoviesData = try await apiClient.fetchMovies(url)
+                            let moviesResponse = try JSONDecoder().decode(MoviesResponse.self, from: fetchedMoviesData)
+                            await send(.moviesResponse(.success(moviesResponse.results)))
+                            
+                        } else {
+                            await send(.moviesResponse(.success([])))
+                        }
+                        
+                    } catch let error {
+                        await send(.moviesResponse(.failure(error)))
+                    }
+                }
             case .categorySelected(let category):
                 state.selectedCategory = category
                 switch category {
                 case .upcoming:
-                    state.moviesList = IdentifiedArrayOf(uniqueElements: MovieDataModel.upComingMockList)
+                    return .send(.fetchMoviesListFromPath(path: Endpoints.upcoming.path))
                 case .topRated:
-                    state.moviesList = IdentifiedArrayOf(uniqueElements: MovieDataModel.topRatedMockList)
+                    return .send(.fetchMoviesListFromPath(path: Endpoints.topRated.path))
                 case .nowPlaying:
-                    state.moviesList = IdentifiedArrayOf(uniqueElements: MovieDataModel.mockList)
+                    return .send(.fetchMoviesListFromPath(path: Endpoints.nowPlaying.path))
                 }
-                return .none
+                
             case .searchStarted(searchText: let searchText):
                 let filterdList = state.moviesList.filter {$0.originalTitle.contains(searchText)}
                 state.moviesList = filterdList
@@ -37,6 +52,11 @@ struct MoviesListReducer: Reducer {
                 state.shouldNavigateToMovieDetailsView = true
                 return .none
                 //display the details view
+            case .moviesResponse(.success(let movies)):
+                state.moviesList = IdentifiedArrayOf(uniqueElements: movies)
+                return .none
+            case .moviesResponse(.failure(let error)):
+                return .none
             }
         }
     }
@@ -56,6 +76,8 @@ struct MoviesListReducer: Reducer {
         case searchStarted(searchText: String)
         case favoriteTapped(movieId: Int)
         case movieTapped(movieId: Int)
+        case moviesResponse(TaskResult<[MovieDataModel]>)
+        case fetchMoviesListFromPath(path: String)
     }
     
 }

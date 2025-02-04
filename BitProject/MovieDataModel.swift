@@ -7,6 +7,10 @@
 
 import Foundation
 
+struct MoviesResponse: Decodable, Equatable {
+    let results: [MovieDataModel]
+}
+
 struct MovieDataModel: Decodable, Equatable, Identifiable {
     let originalTitle: String
     let originalLanguage: String
