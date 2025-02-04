@@ -32,6 +32,7 @@ enum Endpoints {
 
 struct NetworkManager {
     static let baseURLString: String = "https://api.themoviedb.org/3/"
+    static let baseMediaURL: String = "https://image.tmdb.org/t/p/w500"
     
     var fetchMovies: @Sendable (URL) async throws -> Data
 }

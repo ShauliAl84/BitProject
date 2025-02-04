@@ -8,40 +8,39 @@
 import SwiftUI
 
 struct MovieDetails: View {
+    var movieItem: MovieDataModel
     var body: some View {
         VStack {
-            Rectangle()
-                .frame(height: 300)
-                .foregroundStyle(Color.clear)
-                .ignoresSafeArea()
-            
-            AsyncImage(url: URL(string: "https://picsum.photos/id/119/200/200")) { image in
-                CircleImage(image: image)
-                    .offset(y: -180)
-                    .padding(.bottom, -170)
+            AsyncImage(url: URL(string: "https://image.tmdb.org/t/p/w500" + movieItem.posterPath)) { image in
+                image
+                    .resizable()
+                    .frame(height: 400)
+                    .scaledToFit()
+                    .ignoresSafeArea()
+                    .shadow(radius: 7)
             } placeholder: {
-                CircleImage(image: Image(systemName: "person.fill"))
-                    .offset(y: -180)
-                    .padding(.bottom, -170)
+                
             }
-            
-            VStack(alignment: .leading) {
-                Text("teacher.fullName")
-                    .font(.title)
-                
-                
-                HStack {
-                    Text("Ranking")
-                    Spacer()
+            ScrollView {
+                VStack(alignment: .leading) {
+                    RankingView(ranking: movieItem.voteAverage)
+                    Text(movieItem.originalTitle)
+                        .font(.title)
+                    VStack (alignment: .leading){
+                        Text("Description")
+                            .font(.title)
+                        Divider()
+                        Text(movieItem.overview)
+                            .font(.title2)
+                        Spacer()
+                    }
+                    .padding(.vertical, 5)
+                    
+                    
+                    Divider()
                 }
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .padding(.vertical, 5)
-                
-                
-                Divider()
+                .padding()
             }
-            .padding()
             Spacer()
         }
     }
@@ -62,5 +61,5 @@ struct CircleImage: View {
 }
 
 #Preview {
-    MovieDetails()
+    MovieDetails(movieItem: MovieDataModel.mock)
 }

@@ -39,10 +39,12 @@
 			membershipExceptions = (
 				MovieDataModel.swift,
 				Views/MovieDetails.swift,
+				Views/MovieDetailsReducer.swift,
 				Views/MovieItemReducer.swift,
 				Views/MovieItemView.swift,
 				Views/MoviesList.swift,
 				Views/MoviesListReducer.swift,
+				Views/RankingView.swift,
 			);
 			target = 5AB4BFD42D516AEA001A962F /* BitProjectTests */;
 		};
@@ -51,10 +53,12 @@
 			membershipExceptions = (
 				MovieDataModel.swift,
 				Views/MovieDetails.swift,
+				Views/MovieDetailsReducer.swift,
 				Views/MovieItemReducer.swift,
 				Views/MovieItemView.swift,
 				Views/MoviesList.swift,
 				Views/MoviesListReducer.swift,
+				Views/RankingView.swift,
 			);
 			target = 5AB4BFDE2D516AEA001A962F /* BitProjectUITests */;
 		};

@@ -79,7 +79,7 @@ struct MoviesListReducer: Reducer {
     }
     
     struct State: Equatable {
-        var moviesList = IdentifiedArrayOf(uniqueElements: MovieDataModel.upComingMockList)
+        var moviesList = IdentifiedArrayOf<MovieDataModel>()
         var selectedCategory: MovieCategory = .upcoming
         var categoryTitel: String = "Filter By Category"
         let categoryFilter = [MovieCategory.upcoming, MovieCategory.topRated, MovieCategory.nowPlaying]
