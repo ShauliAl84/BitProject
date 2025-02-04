@@ -13,6 +13,22 @@ struct MoviesListReducer: Reducer {
     var body: some ReducerOf<MoviesListReducer> {
         Reduce { state, action in
             switch action {
+            case .movieDetailsResponse(.success(let movieDetails)):
+                state.shouldNavigateToMovieDetailsView = true
+                state.selectedMovieItem = movieDetails
+                return .none
+            case .fetchMovieData(let movieId):
+                return .run { send in
+                    do {
+                        if let url = URL(string: Endpoints.movieDetails(movieId).path) {
+                            let movieData = try await apiClient.fetchMovies(url)
+                            let movieDetails = try JSONDecoder().decode(MovieDataModel.self, from: movieData)
+                            await send(.movieDetailsResponse(.success(movieDetails)))
+                        }
+                    } catch let error {
+                        await send(.movieDetailsResponse(.failure(error)))
+                    }
+                }
             case .fetchMoviesListFromPath(let path):
                 return .run { send in
                     do {
@@ -47,15 +63,16 @@ struct MoviesListReducer: Reducer {
             case .favoriteTapped(let movieId):
                 // Request to add/remove from favorites
                 return .none
-            case .movieTapped(movieId: let movieId):
+            case .movieTapped(let movieId):
                 state.selectedMovieId = movieId
-                state.shouldNavigateToMovieDetailsView = true
-                return .none
+                return .send(.fetchMovieData(movieId: movieId))
                 //display the details view
             case .moviesResponse(.success(let movies)):
                 state.moviesList = IdentifiedArrayOf(uniqueElements: movies)
                 return .none
             case .moviesResponse(.failure(let error)):
+                return .none
+            case .movieDetailsResponse(.failure(_)):
                 return .none
             }
         }
@@ -69,6 +86,7 @@ struct MoviesListReducer: Reducer {
         var shouldNavigateToMovieDetailsView: Bool = false
         var selectedMovieId: Int? = nil
         var movieTitleSearchText: String = ""
+        var selectedMovieItem: MovieDataModel? = nil
     }
     
     enum Action: Equatable {
@@ -77,7 +95,9 @@ struct MoviesListReducer: Reducer {
         case favoriteTapped(movieId: Int)
         case movieTapped(movieId: Int)
         case moviesResponse(TaskResult<[MovieDataModel]>)
+        case movieDetailsResponse(TaskResult<MovieDataModel>)
         case fetchMoviesListFromPath(path: String)
+        case fetchMovieData(movieId: Int)
     }
     
 }

@@ -34,13 +34,16 @@ struct MovieItemView: View {
                     Spacer()
                 }
                 Button {
-                    
+                    favoriteTapeed(movieItem.id)
                 } label: {
                     Image(systemName: "star.fill")
                         .foregroundStyle(Color.yellow)
                         .font(.largeTitle)
                 }
             }
+        }
+        .onTapGesture {
+            movieTapeed(movieItem.id)
         }
         .shadow(radius: 8)
         .padding()

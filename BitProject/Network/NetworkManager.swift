@@ -12,6 +12,7 @@ enum Endpoints {
     case upcoming
     case topRated
     case nowPlaying
+    case movieDetails(Int)
     
     var path: String {
         switch self {
@@ -21,6 +22,9 @@ enum Endpoints {
             return NetworkManager.baseURLString + "movie/top_rated"
         case .nowPlaying:
             return NetworkManager.baseURLString + "movie/now_playing"
+        case .movieDetails(let movieId):
+            return NetworkManager.baseURLString + "movie/\(movieId)"
+            
         }
     }
 }
