@@ -13,6 +13,10 @@ struct MoviesListReducer: Reducer {
     var body: some ReducerOf<MoviesListReducer> {
         Reduce { state, action in
             switch action {
+                
+            case .selectedMovie:
+                return .none
+                
             case .movieDetailsResponse(.success(let movieDetails)):
                 state.shouldNavigateToMovieDetailsView = true
                 state.selectedMovieItem = movieDetails
@@ -63,9 +67,9 @@ struct MoviesListReducer: Reducer {
             case .favoriteTapped(let movieId):
                 // Request to add/remove from favorites
                 return .none
-            case .movieTapped(let movieId):
-                state.selectedMovieId = movieId
-                return .send(.fetchMovieData(movieId: movieId))
+            case .movieTapped(let movie):
+                state.selectedMovie = MovieDetailsReducer.State(movie: movie)
+                return .none
                 //display the details view
             case .moviesResponse(.success(let movies)):
                 state.moviesList = IdentifiedArrayOf(uniqueElements: movies)
@@ -76,6 +80,9 @@ struct MoviesListReducer: Reducer {
                 return .none
             }
         }
+        .ifLet(\.$selectedMovie, action: /Action.selectedMovie) {
+            MovieDetailsReducer()
+        }
     }
     
     struct State: Equatable {
@@ -84,20 +91,24 @@ struct MoviesListReducer: Reducer {
         var categoryTitel: String = "Filter By Category"
         let categoryFilter = [MovieCategory.upcoming, MovieCategory.topRated, MovieCategory.nowPlaying]
         var shouldNavigateToMovieDetailsView: Bool = false
-        var selectedMovieId: Int? = nil
+        var selectedMovieId: MovieDataModel? = nil
         var movieTitleSearchText: String = ""
         var selectedMovieItem: MovieDataModel? = nil
+        
+        @PresentationState var selectedMovie: MovieDetailsReducer.State?
     }
     
     enum Action: Equatable {
         case categorySelected(category: MovieCategory)
         case searchStarted(searchText: String)
         case favoriteTapped(movieId: Int)
-        case movieTapped(movieId: Int)
+        case movieTapped(movie: MovieDataModel)
         case moviesResponse(TaskResult<[MovieDataModel]>)
         case movieDetailsResponse(TaskResult<MovieDataModel>)
         case fetchMoviesListFromPath(path: String)
         case fetchMovieData(movieId: Int)
+        
+        case selectedMovie(PresentationAction<MovieDetailsReducer.Action>)
     }
     
 }

@@ -12,7 +12,7 @@ struct MovieItemView: View {
     
     var movieItem: MovieDataModel
     var favoriteTapeed: (Int) -> ()
-    var movieTapeed: (Int) -> ()
+    var movieTapeed: (MovieDataModel) -> ()
     var body: some View {
         VStack {
             AsyncImage(url: URL(string: NetworkManager.baseMediaURL + movieItem.posterPath)) { image in
@@ -34,7 +34,7 @@ struct MovieItemView: View {
             }
         }
         .onTapGesture {
-            movieTapeed(movieItem.id)
+            movieTapeed(movieItem)
         }
         .shadow(radius: 8)
         .padding()

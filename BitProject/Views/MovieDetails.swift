@@ -6,43 +6,48 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct MovieDetails: View {
-    var movieItem: MovieDataModel
+    
+    let store: StoreOf<MovieDetailsReducer>
     var body: some View {
-        VStack {
-            AsyncImage(url: URL(string: "https://image.tmdb.org/t/p/w500" + movieItem.posterPath)) { image in
-                image
-                    .resizable()
-                    .frame(height: 400)
-                    .scaledToFit()
-                    .ignoresSafeArea()
-                    .shadow(radius: 7)
-            } placeholder: {
-                
-            }
-            ScrollView {
-                VStack(alignment: .leading) {
-                    RankingView(ranking: movieItem.voteAverage)
-                    Text(movieItem.originalTitle)
-                        .font(.title)
-                    VStack (alignment: .leading){
-                        Text("Description")
-                            .font(.title)
-                        Divider()
-                        Text(movieItem.overview)
-                            .font(.title2)
-                        Spacer()
-                    }
-                    .padding(.vertical, 5)
+        WithViewStore(store, observe: {$0}) { viewStore in
+            VStack {
+                AsyncImage(url: URL(string: "https://image.tmdb.org/t/p/w500" + viewStore.movie.posterPath)) { image in
+                    image
+                        .resizable()
+                        .frame(height: 400)
+                        .scaledToFit()
+                        .ignoresSafeArea()
+                        .shadow(radius: 7)
+                } placeholder: {
                     
-                    
-                    Divider()
                 }
-                .padding()
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        RankingView(ranking: viewStore.movie.voteAverage)
+                        Text(viewStore.movie.originalTitle)
+                            .font(.title)
+                        VStack (alignment: .leading){
+                            Text("Description")
+                                .font(.title)
+                            Divider()
+                            Text(viewStore.movie.overview)
+                                .font(.title2)
+                            Spacer()
+                        }
+                        .padding(.vertical, 5)
+                        
+                        
+                        Divider()
+                    }
+                    .padding()
+                }
+                Spacer()
             }
-            Spacer()
         }
+        
     }
 }
 
@@ -61,5 +66,7 @@ struct CircleImage: View {
 }
 
 #Preview {
-    MovieDetails(movieItem: MovieDataModel.mock)
+//    MovieDetails(store: .init(initialState: MovieDetailsReducer.State(movie: MovieDataModel.mock), reducer: {
+//        MovieItemReducer()
+//    }))
 }
