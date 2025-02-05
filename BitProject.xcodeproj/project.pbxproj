@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5AB4BFF42D516CC4001A962F /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 5AB4BFF32D516CC4001A962F /* ComposableArchitecture */; };
+		5AB4C0332D52ABC6001A962F /* ImageCacheKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5AB4C0322D52ABC6001A962F /* ImageCacheKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +92,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5AB4C0332D52ABC6001A962F /* ImageCacheKit in Frameworks */,
 				5AB4BFF42D516CC4001A962F /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -153,6 +155,7 @@
 			name = BitProject;
 			packageProductDependencies = (
 				5AB4BFF32D516CC4001A962F /* ComposableArchitecture */,
+				5AB4C0322D52ABC6001A962F /* ImageCacheKit */,
 			);
 			productName = BitProject;
 			productReference = 5AB4BFC32D516AE4001A962F /* BitProject.app */;
@@ -238,6 +241,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				5AB4BFF22D516CC4001A962F /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				5AB4C02D2D52A6E5001A962F /* XCLocalSwiftPackageReference "../ImageCacheKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5AB4BFC42D516AE4001A962F /* Products */;
@@ -603,6 +607,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		5AB4C02D2D52A6E5001A962F /* XCLocalSwiftPackageReference "../ImageCacheKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../ImageCacheKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		5AB4BFF22D516CC4001A962F /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -619,6 +630,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 5AB4BFF22D516CC4001A962F /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
 			productName = ComposableArchitecture;
+		};
+		5AB4C0322D52ABC6001A962F /* ImageCacheKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ImageCacheKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

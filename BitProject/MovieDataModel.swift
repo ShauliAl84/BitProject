@@ -6,10 +6,33 @@
 //
 
 import Foundation
+import SwiftData
 
 struct MoviesResponse: Decodable, Equatable {
     let results: [MovieDataModel]
 }
+
+@Model
+final class PersistantMovieData {
+    var originalTitle: String
+    var originalLanguage: String
+    var overview: String
+    var posterPath: String
+    var voteAverage: CGFloat
+    var releaseDate: String
+    @Attribute(.unique) var id: Int = Int.random(in: 1...100000)
+    
+    init(originalTitle: String, originalLanguage: String, overview: String, posterPath: String, voteAverage: CGFloat, releaseDate: String, id: Int) {
+        self.originalTitle = originalTitle
+        self.originalLanguage = originalLanguage
+        self.overview = overview
+        self.posterPath = posterPath
+        self.voteAverage = voteAverage
+        self.releaseDate = releaseDate
+        self.id = id
+    }
+}
+
 
 struct MovieDataModel: Decodable, Equatable, Identifiable {
     let originalTitle: String

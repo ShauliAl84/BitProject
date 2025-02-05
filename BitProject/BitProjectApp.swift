@@ -7,29 +7,29 @@
 
 import SwiftUI
 import SwiftData
+import ImageCacheKit
 
 @main
 struct BitProjectApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+    private let container: ModelContainer
+    private let imageCacheManager: ImageCacheManager
+    
+    init() {
+        let schema = Schema([PersistantMovieData.self, CachedImage.self])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        self.container = try! ModelContainer(for: schema, configurations: [config])
+        self.imageCacheManager = ImageCacheManager(container: container)
+    }
 
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
 
     var body: some Scene {
         WindowGroup {
             MoviesList(store: .init(initialState: MoviesListReducer.State(), reducer: {
                 MoviesListReducer()._printChanges()
             }))
+            .environment(imageCacheManager)
             
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(container)
     }
 }
