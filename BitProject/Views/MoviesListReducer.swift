@@ -13,7 +13,18 @@ struct MoviesListReducer: Reducer {
     var body: some ReducerOf<MoviesListReducer> {
         Reduce { state, action in
             switch action {
-                
+            case .loadNextPage:
+                state.page += 1
+                var path = Endpoints.upcoming.path
+                switch state.selectedCategory {
+                case .upcoming:
+                    path = Endpoints.upcoming.path
+                case .topRated:
+                    path = Endpoints.topRated.path
+                case .nowPlaying:
+                    path = Endpoints.nowPlaying.path
+                }
+                return .send(.fetchMoviesListFromPath(path: path))
             case .selectedMovie:
                 return .none
                 
@@ -22,10 +33,12 @@ struct MoviesListReducer: Reducer {
                 state.selectedMovieItem = movieDetails
                 return .none
             case .fetchMovieData(let movieId):
+                let page = state.page
                 return .run { send in
                     do {
-                        if let url = URL(string: Endpoints.movieDetails(movieId).path) {
-                            let movieData = try await apiClient.fetchMovies(url)
+                        if let url = URL(string: Endpoints.movieDetails(movieId).path),
+                           let movieData = try await apiClient.fetchMovies(url, page) {
+                            
                             let movieDetails = try JSONDecoder().decode(MovieDataModel.self, from: movieData)
                             await send(.movieDetailsResponse(.success(movieDetails)))
                         }
@@ -34,10 +47,12 @@ struct MoviesListReducer: Reducer {
                     }
                 }
             case .fetchMoviesListFromPath(let path):
+                let page = state.page
                 return .run { send in
                     do {
-                        if let url = URL(string: path) {
-                            let fetchedMoviesData = try await apiClient.fetchMovies(url)
+                        if let url = URL(string: path),
+                           let fetchedMoviesData = try await apiClient.fetchMovies(url, page) {
+                            
                             let moviesResponse = try JSONDecoder().decode(MoviesResponse.self, from: fetchedMoviesData)
                             await send(.moviesResponse(.success(moviesResponse.results)))
                             
@@ -50,6 +65,10 @@ struct MoviesListReducer: Reducer {
                     }
                 }
             case .categorySelected(let category):
+                if state.selectedCategory != category {
+                    state.moviesList = IdentifiedArrayOf<MovieDataModel>()
+                    state.page = 1
+                }
                 state.selectedCategory = category
                 switch category {
                 case .upcoming:
@@ -59,7 +78,6 @@ struct MoviesListReducer: Reducer {
                 case .nowPlaying:
                     return .send(.fetchMoviesListFromPath(path: Endpoints.nowPlaying.path))
                 }
-                
             case .searchStarted(searchText: let searchText):
                 let filterdList = state.moviesList.filter {$0.originalTitle.contains(searchText)}
                 state.moviesList = filterdList
@@ -72,9 +90,10 @@ struct MoviesListReducer: Reducer {
                 return .none
                 //display the details view
             case .moviesResponse(.success(let movies)):
-                state.moviesList = IdentifiedArrayOf(uniqueElements: movies)
+                state.moviesList += IdentifiedArrayOf(uniqueElements: movies)
                 return .none
             case .moviesResponse(.failure(let error)):
+                print(error.localizedDescription)
                 return .none
             case .movieDetailsResponse(.failure(_)):
                 return .none
@@ -94,7 +113,7 @@ struct MoviesListReducer: Reducer {
         var selectedMovieId: MovieDataModel? = nil
         var movieTitleSearchText: String = ""
         var selectedMovieItem: MovieDataModel? = nil
-        
+        var page: Int = 1
         @PresentationState var selectedMovie: MovieDetailsReducer.State?
     }
     
@@ -109,6 +128,7 @@ struct MoviesListReducer: Reducer {
         case fetchMovieData(movieId: Int)
         
         case selectedMovie(PresentationAction<MovieDetailsReducer.Action>)
+        case loadNextPage
     }
     
 }

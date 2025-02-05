@@ -20,14 +20,6 @@ struct MovieItemView: View {
         VStack {
             CachedAsyncImage(url:  URL(string: NetworkManager.baseMediaURL + movieItem.posterPath), imageCacheManager: cacheManager)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
-//            AsyncImage(url: URL(string: NetworkManager.baseMediaURL + movieItem.posterPath)) { image in
-//                image
-//                    .resizable()
-//                    .scaledToFit()
-//                    .clipShape(RoundedRectangle(cornerRadius: 8))
-//            } placeholder: {
-//                ProgressView()
-//            }
             VStack {
                 Button {
                     favoriteTapeed(movieItem.id)

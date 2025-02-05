@@ -34,7 +34,7 @@ struct NetworkManager {
     static let baseURLString: String = "https://api.themoviedb.org/3/"
     static let baseMediaURL: String = "https://image.tmdb.org/t/p/w500"
     
-    var fetchMovies: @Sendable (URL) async throws -> Data
+    var fetchMovies: @Sendable (URL, Int) async throws -> Data?
 }
 
 extension DependencyValues {
@@ -46,9 +46,22 @@ extension DependencyValues {
     private enum NetworkManagerKey: DependencyKey {
         
         static let liveValue = NetworkManager(
-            fetchMovies: { url in
-                var request = URLRequest(url: url)
-                request.setValue("Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmNTUzOGE2NjliYTIwNmRmMTY2ODFiOGJiOTkzN2Y5NyIsIm5iZiI6MTQ1NjgzMzYwMy41MTQsInN1YiI6IjU2ZDU4NDQzOTI1MTQxMzQwMjAxMzMzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CEtc9EekYNcuccnboXG4EswSZxCZjx0HVMX28AYTGyg", forHTTPHeaderField: "Authorization")
+            fetchMovies: { url, page in
+                guard var components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {return nil}
+                let queryItems: [URLQueryItem] = [
+                  URLQueryItem(name: "language", value: "en-US"),
+                  URLQueryItem(name: "page", value: "\(page)"),
+                ]
+                components.queryItems = components.queryItems.map { $0 + queryItems } ?? queryItems
+                
+                var request = URLRequest(url: components.url ?? url)
+                request.httpMethod = "GET"
+                request.timeoutInterval = 10
+                request.allHTTPHeaderFields = [
+                  "accept": "application/json",
+                  "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmNTUzOGE2NjliYTIwNmRmMTY2ODFiOGJiOTkzN2Y5NyIsIm5iZiI6MTQ1NjgzMzYwMy41MTQsInN1YiI6IjU2ZDU4NDQzOTI1MTQxMzQwMjAxMzMzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CEtc9EekYNcuccnboXG4EswSZxCZjx0HVMX28AYTGyg"
+                ]
+                
                 let (data, _) = try await URLSession.shared.data(for: request)
                 return data
             }

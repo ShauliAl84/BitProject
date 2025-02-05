@@ -39,7 +39,9 @@ struct MoviesList: View {
                         .navigationDestination(store: self.store.scope(state: \.$selectedMovie, action: {.selectedMovie($0)})) { store in
                             MovieDetails(store: store)
                         }
-                        
+                    }
+                    .onScrollPhaseChange { oldPhase, newPhase in
+                        viewStore.send(.loadNextPage)
                     }
                 }
             }
