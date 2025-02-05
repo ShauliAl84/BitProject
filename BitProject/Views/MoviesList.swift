@@ -26,8 +26,8 @@ struct MoviesList: View {
                     ScrollView {
                         LazyVGrid(columns: columns) {
                             ForEach(viewStore.moviesList) { movie in
-                                MovieItemView(movieItem: movie) { movieId in
-                                    viewStore.send(.favoriteTapped(movieId: movieId))
+                                MovieItemView(movieItem: movie) { movieMovie in
+                                    viewStore.send(.favoriteTapped(movieId: movie))
                                 } movieTapeed: { movie in
                                     viewStore.send(.movieTapped(movie: movie))
                                 }

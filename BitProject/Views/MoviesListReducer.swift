@@ -13,6 +13,9 @@ struct MoviesListReducer: Reducer {
     var body: some ReducerOf<MoviesListReducer> {
         Reduce { state, action in
             switch action {
+            case .addToFvoriteMoviesList(let movie):
+                state.favoritesMoviesList.append(movie)
+                return .none
             case .loadNextPage:
                 state.page += 1
                 var path = Endpoints.upcoming.path
@@ -82,9 +85,28 @@ struct MoviesListReducer: Reducer {
                 let filterdList = state.moviesList.filter {$0.originalTitle.contains(searchText)}
                 state.moviesList = filterdList
                 return .none
-            case .favoriteTapped(let movieId):
-                // Request to add/remove from favorites
-                return .none
+            case .favoriteTapped(let movie):
+                let path = Endpoints.favorite(movie.id).path
+                return .run { send in
+                    do {
+                        let parameters = [
+                          "media_type": "movie",
+                          "media_id": movie.id,
+                          "favorite": true
+                        ]
+                        if let url = URL(string: path),
+                           let data = try await apiClient.addRemoveFavorite(url, parameters) {
+                            
+                            let favoriteResponse = try JSONDecoder().decode(FavoriteResponseModel.self, from: data)
+                            if favoriteResponse.success == true {
+                                await send(.addToFvoriteMoviesList(movie: movie))
+                            }
+                        }
+                        
+                    } catch let error {
+                        await send(.moviesResponse(.failure(error)))
+                    }
+                }
             case .movieTapped(let movie):
                 state.selectedMovie = MovieDetailsReducer.State(movie: movie)
                 return .none
@@ -106,6 +128,7 @@ struct MoviesListReducer: Reducer {
     
     struct State: Equatable {
         var moviesList = IdentifiedArrayOf<MovieDataModel>()
+        var favoritesMoviesList = IdentifiedArrayOf<MovieDataModel>()
         var selectedCategory: MovieCategory = .upcoming
         var categoryTitel: String = "Filter By Category"
         let categoryFilter = [MovieCategory.upcoming, MovieCategory.topRated, MovieCategory.nowPlaying]
@@ -120,13 +143,13 @@ struct MoviesListReducer: Reducer {
     enum Action: Equatable {
         case categorySelected(category: MovieCategory)
         case searchStarted(searchText: String)
-        case favoriteTapped(movieId: Int)
+        case favoriteTapped(movie: MovieDataModel)
         case movieTapped(movie: MovieDataModel)
         case moviesResponse(TaskResult<[MovieDataModel]>)
         case movieDetailsResponse(TaskResult<MovieDataModel>)
         case fetchMoviesListFromPath(path: String)
         case fetchMovieData(movieId: Int)
-        
+        case addToFvoriteMoviesList(movie: MovieDataModel)
         case selectedMovie(PresentationAction<MovieDetailsReducer.Action>)
         case loadNextPage
     }

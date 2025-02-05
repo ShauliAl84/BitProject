@@ -13,6 +13,7 @@ enum Endpoints {
     case topRated
     case nowPlaying
     case movieDetails(Int)
+    case favorite(Int)
     
     var path: String {
         switch self {
@@ -24,7 +25,8 @@ enum Endpoints {
             return NetworkManager.baseURLString + "movie/now_playing"
         case .movieDetails(let movieId):
             return NetworkManager.baseURLString + "movie/\(movieId)"
-            
+        case .favorite(let movieId):
+            return NetworkManager.baseURLString + "account/6339531/favorite"
         }
     }
 }
@@ -34,7 +36,10 @@ struct NetworkManager {
     static let baseURLString: String = "https://api.themoviedb.org/3/"
     static let baseMediaURL: String = "https://image.tmdb.org/t/p/w500"
     
+    static let bearerToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmNTUzOGE2NjliYTIwNmRmMTY2ODFiOGJiOTkzN2Y5NyIsIm5iZiI6MTQ1NjgzMzYwMy41MTQsInN1YiI6IjU2ZDU4NDQzOTI1MTQxMzQwMjAxMzMzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CEtc9EekYNcuccnboXG4EswSZxCZjx0HVMX28AYTGyg"
+    
     var fetchMovies: @Sendable (URL, Int) async throws -> Data?
+    var addRemoveFavorite: @Sendable (URL, [String: Any]) async throws -> Data?
 }
 
 extension DependencyValues {
@@ -59,11 +64,28 @@ extension DependencyValues {
                 request.timeoutInterval = 10
                 request.allHTTPHeaderFields = [
                   "accept": "application/json",
-                  "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmNTUzOGE2NjliYTIwNmRmMTY2ODFiOGJiOTkzN2Y5NyIsIm5iZiI6MTQ1NjgzMzYwMy41MTQsInN1YiI6IjU2ZDU4NDQzOTI1MTQxMzQwMjAxMzMzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CEtc9EekYNcuccnboXG4EswSZxCZjx0HVMX28AYTGyg"
+                  "Authorization": NetworkManager.bearerToken
                 ]
                 
                 let (data, _) = try await URLSession.shared.data(for: request)
                 return data
+            }, addRemoveFavorite: { url, parameters in
+                let postData = try JSONSerialization.data(withJSONObject: parameters, options: [])
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.timeoutInterval = 10
+                request.allHTTPHeaderFields = [
+                  "accept": "application/json",
+                  "content-type": "application/json",
+                  "Authorization": NetworkManager.bearerToken
+                ]
+                request.httpBody = postData
+                let (data, response) = try await URLSession.shared.data(for: request)
+                guard let httpResponse = response as? HTTPURLResponse else {return data}
+                print(httpResponse.statusCode)
+                print(String(data: data, encoding: .utf8))
+                return data
+                
             }
         )
     }

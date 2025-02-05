@@ -39,6 +39,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				MovieDataModel.swift,
+				Views/FavoriteResponseModel.swift,
 				Views/MovieDetails.swift,
 				Views/MovieDetailsReducer.swift,
 				Views/MovieItemReducer.swift,
@@ -53,6 +54,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				MovieDataModel.swift,
+				Views/FavoriteResponseModel.swift,
 				Views/MovieDetails.swift,
 				Views/MovieDetailsReducer.swift,
 				Views/MovieItemReducer.swift,

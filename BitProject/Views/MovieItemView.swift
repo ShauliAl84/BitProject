@@ -12,7 +12,7 @@ import ImageCacheKit
 struct MovieItemView: View {
     
     var movieItem: MovieDataModel
-    var favoriteTapeed: (Int) -> ()
+    var favoriteTapeed: (MovieDataModel) -> ()
     var movieTapeed: (MovieDataModel) -> ()
     
     @Environment(ImageCacheManager.self) private var cacheManager
@@ -22,7 +22,7 @@ struct MovieItemView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             VStack {
                 Button {
-                    favoriteTapeed(movieItem.id)
+                    favoriteTapeed(movieItem)
                 } label: {
                     Image(systemName: "star.fill")
                         .foregroundStyle(Color.yellow)
