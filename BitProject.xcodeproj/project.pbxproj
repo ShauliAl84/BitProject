@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5AA6CBF52D5531A500ABDCE0 /* ImageCacheKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5AA6CBF42D5531A500ABDCE0 /* ImageCacheKit */; };
 		5AB4BFF42D516CC4001A962F /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 5AB4BFF32D516CC4001A962F /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
@@ -87,6 +88,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5AA6CBF52D5531A500ABDCE0 /* ImageCacheKit in Frameworks */,
 				5AB4BFF42D516CC4001A962F /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -149,6 +151,8 @@
 			name = BitProject;
 			packageProductDependencies = (
 				5AB4BFF32D516CC4001A962F /* ComposableArchitecture */,
+				5AB4C0322D52ABC6001A962F /* ImageCacheKit */,
+				5AA6CBF42D5531A500ABDCE0 /* ImageCacheKit */,
 			);
 			productName = BitProject;
 			productReference = 5AB4BFC32D516AE4001A962F /* BitProject.app */;
@@ -234,6 +238,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				5AB4BFF22D516CC4001A962F /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				5AA6CBF32D5531A500ABDCE0 /* XCRemoteSwiftPackageReference "ImageCachKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5AB4BFC42D516AE4001A962F /* Products */;
@@ -452,6 +457,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.shauli.BitProject;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -481,6 +487,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.shauli.BitProject;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -600,6 +607,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		5AA6CBF32D5531A500ABDCE0 /* XCRemoteSwiftPackageReference "ImageCachKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ShauliAl84/ImageCachKit";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		5AB4BFF22D516CC4001A962F /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
@@ -611,10 +626,19 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		5AA6CBF42D5531A500ABDCE0 /* ImageCacheKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5AA6CBF32D5531A500ABDCE0 /* XCRemoteSwiftPackageReference "ImageCachKit" */;
+			productName = ImageCacheKit;
+		};
 		5AB4BFF32D516CC4001A962F /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 5AB4BFF22D516CC4001A962F /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
 			productName = ComposableArchitecture;
+		};
+		5AB4C0322D52ABC6001A962F /* ImageCacheKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ImageCacheKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
