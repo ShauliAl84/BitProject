@@ -19,7 +19,7 @@ struct MovieItemView: View {
     @Environment(ImageCacheManager.self) private var cacheManager
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            CachedAsyncImage(url:  URL(string: NetworkManager.baseMediaURL + movieItem.posterPath), imageCacheManager: cacheManager)
+            CachedAsyncImage(url:  URL(string: baseMediaURL + movieItem.posterPath), imageCacheManager: cacheManager)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             
             Menu {

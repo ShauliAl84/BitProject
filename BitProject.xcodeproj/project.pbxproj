@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5A9F6EFC2D5533FB00BF9B7B /* ImageCacheKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5AB4C0322D52ABC6001A962F /* ImageCacheKit */; };
 		5AA6CBF52D5531A500ABDCE0 /* ImageCacheKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5AA6CBF42D5531A500ABDCE0 /* ImageCacheKit */; };
 		5AB4BFF42D516CC4001A962F /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 5AB4BFF32D516CC4001A962F /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
@@ -39,17 +40,11 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				MovieDataModel.swift,
-				Views/FavoriteMoviesReducer.swift,
-				Views/FavoriteMoviesView.swift,
-				Views/FavoriteResponseModel.swift,
-				Views/MainTabView.swift,
 				Views/MovieDetails.swift,
-				Views/MovieDetailsReducer.swift,
 				Views/MovieItemReducer.swift,
 				Views/MovieItemView.swift,
 				Views/MoviesList.swift,
 				Views/MoviesListReducer.swift,
-				Views/RankingView.swift,
 			);
 			target = 5AB4BFD42D516AEA001A962F /* BitProjectTests */;
 		};
@@ -57,17 +52,11 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				MovieDataModel.swift,
-				Views/FavoriteMoviesReducer.swift,
-				Views/FavoriteMoviesView.swift,
-				Views/FavoriteResponseModel.swift,
-				Views/MainTabView.swift,
 				Views/MovieDetails.swift,
-				Views/MovieDetailsReducer.swift,
 				Views/MovieItemReducer.swift,
 				Views/MovieItemView.swift,
 				Views/MoviesList.swift,
 				Views/MoviesListReducer.swift,
-				Views/RankingView.swift,
 			);
 			target = 5AB4BFDE2D516AEA001A962F /* BitProjectUITests */;
 		};
@@ -100,6 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5A9F6EFC2D5533FB00BF9B7B /* ImageCacheKit in Frameworks */,
 				5AA6CBF52D5531A500ABDCE0 /* ImageCacheKit in Frameworks */,
 				5AB4BFF42D516CC4001A962F /* ComposableArchitecture in Frameworks */,
 			);
