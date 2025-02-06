@@ -24,9 +24,7 @@ struct BitProjectApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MoviesList(store: .init(initialState: MoviesListReducer.State(), reducer: {
-                MoviesListReducer()._printChanges()
-            }))
+            MainTabView()
             .environment(imageCacheManager)
             
         }

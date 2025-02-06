@@ -7,11 +7,13 @@
 
 import SwiftUI
 import ComposableArchitecture
+import SwiftData
 
 struct MoviesList: View {
     let store: StoreOf<MoviesListReducer>
     let columns = Array(repeating: GridItem(.flexible()), count: 3)
-    
+    @Environment(\.modelContext) var modelContext
+
     var body: some View {
         
         NavigationStack {
@@ -26,15 +28,16 @@ struct MoviesList: View {
                     ScrollView {
                         LazyVGrid(columns: columns) {
                             ForEach(viewStore.moviesList) { movie in
-                                MovieItemView(movieItem: movie) { movieMovie in
-                                    viewStore.send(.favoriteTapped(movieId: movie))
-                                } movieTapeed: { movie in
+                                MovieItemView(movieItem: movie) {
+                                    viewStore.send(.favoriteTapped(movie: movie))
+                                } movieTapeed: {
                                     viewStore.send(.movieTapped(movie: movie))
                                 }
                             }
                         }
                         .onAppear {
-                            viewStore.send(.fetchMoviesListFromPath(path: Endpoints.upcoming.path))
+                            viewStore.send(.fetchMoviesFromLocalStorage(modelContext, MovieCategory.upcoming))
+                            viewStore.send(.fetchMoviesListFromPath(path: Endpoints.upcoming.path, modelContext: modelContext))
                         }
                         .navigationDestination(store: self.store.scope(state: \.$selectedMovie, action: {.selectedMovie($0)})) { store in
                             MovieDetails(store: store)

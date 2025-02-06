@@ -8,30 +8,46 @@
 import SwiftUI
 import ComposableArchitecture
 import ImageCacheKit
+import SwiftData
 
 struct MovieItemView: View {
     
-    var movieItem: MovieDataModel
-    var favoriteTapeed: (MovieDataModel) -> ()
-    var movieTapeed: (MovieDataModel) -> ()
+    var movieItem: PersistantMovieData
+    var favoriteTapeed: () -> ()
+    var movieTapeed: () -> ()
     
     @Environment(ImageCacheManager.self) private var cacheManager
     var body: some View {
-        VStack {
+        ZStack(alignment: .topTrailing) {
             CachedAsyncImage(url:  URL(string: NetworkManager.baseMediaURL + movieItem.posterPath), imageCacheManager: cacheManager)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
-            VStack {
+            
+            Menu {
                 Button {
-                    favoriteTapeed(movieItem)
+                    movieTapeed()
                 } label: {
-                    Image(systemName: "star.fill")
-                        .foregroundStyle(Color.yellow)
-                        .font(.largeTitle)
+                    Text("Show details")
                 }
+                
+                Button {
+                    favoriteTapeed()
+                } label: {
+                    Text(movieItem.isFavorite ? "Remove from favorites" : "Add to favorites")
+                }
+
+            } label: {
+                Image(systemName: "ellipsis.circle.fill")
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .foregroundColor(.white)
+                    .background(Circle().fill(Color.black.opacity(0.7)))
+                    .padding(5)
             }
+
+            
         }
         .onTapGesture {
-            movieTapeed(movieItem)
+            movieTapeed()
         }
         .shadow(radius: 8)
         .padding()
@@ -40,9 +56,14 @@ struct MovieItemView: View {
 }
 
 #Preview {
-    MovieItemView(movieItem: MovieDataModel.mock) { movieItemId in
+    let schema = Schema([PersistantMovieData.self, CachedImage.self])
+    let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+    let container = try! ModelContainer(for: schema, configurations: [config])
+    let imageCacheManager = ImageCacheManager(container: container)
+    
+    MovieItemView(movieItem: PersistantMovieData(isFavorite: false, category: .nowPlaying, movieDataModel: MovieDataModel.mock)) {
         
-    } movieTapeed: { movieItemId in
+    } movieTapeed: {
         
-    }
+    }.environment(imageCacheManager)
 }

@@ -20,16 +20,20 @@ final class PersistantMovieData {
     var posterPath: String
     var voteAverage: CGFloat
     var releaseDate: String
+    var isFavorite: Bool
+    var category: String
     @Attribute(.unique) var id: Int = Int.random(in: 1...100000)
     
-    init(originalTitle: String, originalLanguage: String, overview: String, posterPath: String, voteAverage: CGFloat, releaseDate: String, id: Int) {
-        self.originalTitle = originalTitle
-        self.originalLanguage = originalLanguage
-        self.overview = overview
-        self.posterPath = posterPath
-        self.voteAverage = voteAverage
-        self.releaseDate = releaseDate
-        self.id = id
+    init(isFavorite: Bool, category: MovieCategory, movieDataModel: MovieDataModel) {
+        self.originalTitle = movieDataModel.originalTitle
+        self.originalLanguage = movieDataModel.originalLanguage
+        self.overview = movieDataModel.overview
+        self.posterPath = movieDataModel.posterPath
+        self.voteAverage = movieDataModel.voteAverage
+        self.releaseDate = movieDataModel.releaseDate
+        self.isFavorite = isFavorite
+        self.category = category.rawValue
+        self.id = movieDataModel.id
     }
 }
 

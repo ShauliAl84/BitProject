@@ -14,7 +14,7 @@ struct MovieDetails: View {
     var body: some View {
         WithViewStore(store, observe: {$0}) { viewStore in
             VStack {
-                AsyncImage(url: URL(string: "https://image.tmdb.org/t/p/w500" + viewStore.movie.posterPath)) { image in
+                AsyncImage(url: URL(string: NetworkManager.baseMediaURL + viewStore.movie.posterPath)) { image in
                     image
                         .resizable()
                         .frame(height: 400)

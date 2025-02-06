@@ -39,7 +39,10 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				MovieDataModel.swift,
+				Views/FavoriteMoviesReducer.swift,
+				Views/FavoriteMoviesView.swift,
 				Views/FavoriteResponseModel.swift,
+				Views/MainTabView.swift,
 				Views/MovieDetails.swift,
 				Views/MovieDetailsReducer.swift,
 				Views/MovieItemReducer.swift,
@@ -54,7 +57,10 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				MovieDataModel.swift,
+				Views/FavoriteMoviesReducer.swift,
+				Views/FavoriteMoviesView.swift,
 				Views/FavoriteResponseModel.swift,
+				Views/MainTabView.swift,
 				Views/MovieDetails.swift,
 				Views/MovieDetailsReducer.swift,
 				Views/MovieItemReducer.swift,
@@ -462,6 +468,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.shauli.BitProject;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -491,6 +498,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.shauli.BitProject;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

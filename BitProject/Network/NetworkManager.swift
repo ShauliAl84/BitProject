@@ -25,7 +25,7 @@ enum Endpoints {
             return NetworkManager.baseURLString + "movie/now_playing"
         case .movieDetails(let movieId):
             return NetworkManager.baseURLString + "movie/\(movieId)"
-        case .favorite(let movieId):
+        case .favorite(_):
             return NetworkManager.baseURLString + "account/6339531/favorite"
         }
     }
@@ -82,7 +82,6 @@ extension DependencyValues {
                 request.httpBody = postData
                 let (data, response) = try await URLSession.shared.data(for: request)
                 guard let httpResponse = response as? HTTPURLResponse else {return data}
-                print(httpResponse.statusCode)
                 print(String(data: data, encoding: .utf8))
                 return data
                 

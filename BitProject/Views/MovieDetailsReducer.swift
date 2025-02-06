@@ -10,7 +10,7 @@ import ComposableArchitecture
 
 struct MovieDetailsReducer: Reducer {
     struct State: Equatable {
-        let movie: MovieDataModel
+        let movie: PersistantMovieData
     }
     
     enum Action: Equatable {
