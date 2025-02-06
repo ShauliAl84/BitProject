@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct RankingView: View {
-    var ranking: CGFloat
+    var ranking: Float
     private let minValue = 1.0
     private let maxValue = 10.0
     
     let gradient = Gradient(colors: [.blue, .green, .pink])
         var body: some View {
             VStack {
-                Gauge(value: ranking, in: minValue...maxValue) {
+                Gauge(value: Double(ranking), in: minValue...maxValue) {
                     Text("Movie Rating")
                 } currentValueLabel: {
                     Text(Int(ranking * 10), format: .number)

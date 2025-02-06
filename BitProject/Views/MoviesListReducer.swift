@@ -9,66 +9,89 @@ import Foundation
 import ComposableArchitecture
 import SwiftData
 
+extension URL {
+    static let upcomingMoviesListFileURL = Self.documentsDirectory.appending(component: "upcoming_movies.json")
+    static let topRatedMoviesListFileURL = Self.documentsDirectory.appending(component: "topRated_movies.json")
+    static let nowPlayingMoviesListFileURL = Self.documentsDirectory.appending(component: "nowPlaying_movies.json")
+    static let favoritesMoviesListFileURL = Self.documentsDirectory.appending(component: "favorites_movies.json")
+}
 
-struct MoviesListReducer: Reducer {
+
+extension SharedKey where Self == FileStorageKey<IdentifiedArrayOf<MovieDataModel>>.Default {
+    static var upcomingMoviesList: Self {Self[.fileStorage(.upcomingMoviesListFileURL), default: []] }
+    static var topRatedMoviesList: Self {Self[.fileStorage(.topRatedMoviesListFileURL), default: []] }
+    static var nowPlayingMoviesList: Self {Self[.fileStorage(.nowPlayingMoviesListFileURL), default: []] }
+    static var favoritesMoviesList: Self {Self[.fileStorage(.favoritesMoviesListFileURL), default: []] }
+}
+
+@Reducer
+struct MoviesListReducer {
     @Dependency(\.apiClient) var apiClient
     
-    @MainActor
-    func saveMoviesIfNeeded(modelContext: ModelContext?, movies: [MovieDataModel], selectedCategory: MovieCategory) -> IdentifiedArrayOf<PersistantMovieData> {
-        var persistenMovies = IdentifiedArrayOf<PersistantMovieData>()
-        for movie in movies {
-            let persistentMovie = PersistantMovieData(isFavorite: false, category: selectedCategory, movieDataModel: movie)
-            persistenMovies.append(persistentMovie)
-        }
-        var insertionCandidates = persistenMovies
-        let fetchDescriptor = FetchDescriptor<PersistantMovieData>()
+    @ObservableState
+    struct State: Equatable {
+        @Shared(.upcomingMoviesList) var upcomingMoviesList
+        @Shared(.topRatedMoviesList) var topRatedMoviesList
+        @Shared(.nowPlayingMoviesList) var nowPlayingMoviesList
+        @Shared(.favoritesMoviesList) var favoritesMoviesList
         
-        if let storedMovies = try? modelContext?.fetch(fetchDescriptor) {
-            for storedMovie in storedMovies {
-                if let _ = insertionCandidates[id: storedMovie.id] {
-                    insertionCandidates.remove(id: storedMovie.id)
-                }
+        var selectedCategory: MovieCategory = .upcoming
+        var categoryTitel: String = "Filter By Category"
+        let categoryFilter = [MovieCategory.upcoming, MovieCategory.topRated, MovieCategory.nowPlaying]
+        var shouldNavigateToMovieDetailsView: Bool = false
+        var selectedMovieId: MovieDataModel? = nil
+        var movieTitleSearchText: String = ""
+        var selectedMovieItem: MovieDataModel? = nil
+        var page: Int = 1
+        @Presents var selectedMovie: MovieDetailsReducer.State?
+        
+        var moviesToPresent: IdentifiedArrayOf<MovieDataModel> {
+            switch self.selectedCategory {
+                
+            case .upcoming:
+                return upcomingMoviesList
+            case .topRated:
+                return topRatedMoviesList
+            case .nowPlaying:
+                return nowPlayingMoviesList
             }
         }
-        print(persistenMovies)
-        for newMovie in insertionCandidates {
-            print("Shauli: New Movie inserted")
-            modelContext?.insert(newMovie)
-        }
-        
-        try? modelContext?.save()
-        return persistenMovies
+    }
+    
+    enum Action: BindableAction, Equatable {
+        case binding(BindingAction<State>)
+        case categorySelected(category: MovieCategory)
+        case searchStarted(searchText: String)
+        case favoriteTapped(movie: MovieDataModel)
+        case movieTapped(movie: MovieDataModel)
+        case moviesResponse(IdentifiedArrayOf<MovieDataModel>)
+        case movieDetailsResponse(TaskResult<MovieDataNetworkModel>)
+        case fetchMoviesListFromPath(path: String)
+        case fetchMovieData(movieId: Int)
+        case toggleMovieFavorite(movie: MovieDataModel)
+        case selectedMovie(PresentationAction<MovieDetailsReducer.Action>)
+        case loadNextPage
+        case saveMoviesLocally(TaskResult<[MovieDataNetworkModel]>)
         
     }
-
     
     var body: some ReducerOf<MoviesListReducer> {
+        
+        BindingReducer()
+        
         Reduce { state, action in
             switch action {
-            case .fetchFavoritesMovies(let modelContext):
-                do {
-                    let movies = try modelContext.fetch(FetchDescriptor<PersistantMovieData>())
-                    let favoriteMovies = movies.filter {$0.isFavorite == true}
-                    print(favoriteMovies)
-                    state.favoritesMoviesList = IdentifiedArrayOf(uniqueElements: favoriteMovies)
-                    
-                } catch let error {
-                    print("Failed fetching fav movies \(error.localizedDescription)")
-                }
+            case .binding:
                 return .none
-            case .fetchMoviesFromLocalStorage(let modelContext, let selectedCategory):
-                state.modelContext = modelContext
-                var storedMovies = try? modelContext.fetch(FetchDescriptor<PersistantMovieData>())
-                storedMovies = storedMovies?.filter {$0.category == selectedCategory.rawValue}
-                return .send(.moviesResponse(IdentifiedArrayOf(uniqueElements: storedMovies ?? [])))
             case .toggleMovieFavorite(let movie):
-                movie.isFavorite.toggle()
-//                try? state.modelContext?.save()
-                if movie.isFavorite {
-                    state.favoritesMoviesList.append(movie)
-                }else {
-                    state.favoritesMoviesList.remove(movie)
+                var updatedMovie = movie
+                updatedMovie.toggleFavorite()
+                if updatedMovie.isFavorite {
+                    state.$favoritesMoviesList.withLock {$0 += [updatedMovie]}
+                } else {
+                    state.$favoritesMoviesList.withLock { _ = $0.remove(id: updatedMovie.id) }
                 }
+                
                 return .none
             case .loadNextPage:
                 state.page += 1
@@ -81,13 +104,13 @@ struct MoviesListReducer: Reducer {
                 case .nowPlaying:
                     path = Endpoints.nowPlaying.path
                 }
-                return .send(.fetchMoviesListFromPath(path: path, modelContext: state.modelContext))
+                return .send(.fetchMoviesListFromPath(path: path))
             case .selectedMovie:
                 return .none
                 
             case .movieDetailsResponse(.success(let movieDetails)):
-                state.shouldNavigateToMovieDetailsView = true
-                state.selectedMovieItem = movieDetails
+                let selectedMovie = MovieDataModel(category: state.selectedCategory, model: movieDetails)
+                state.selectedMovieItem = selectedMovie
                 return .none
             case .fetchMovieData(let movieId):
                 let page = state.page
@@ -96,15 +119,14 @@ struct MoviesListReducer: Reducer {
                         if let url = URL(string: Endpoints.movieDetails(movieId).path),
                            let movieData = try await apiClient.fetchMovies(url, page) {
                             
-                            let movieDetails = try JSONDecoder().decode(MovieDataModel.self, from: movieData)
+                            let movieDetails = try JSONDecoder().decode(MovieDataNetworkModel.self, from: movieData)
                             await send(.movieDetailsResponse(.success(movieDetails)))
                         }
                     } catch let error {
                         await send(.movieDetailsResponse(.failure(error)))
                     }
                 }
-            case .fetchMoviesListFromPath(let path, let modelContext):
-                state.modelContext = modelContext
+            case .fetchMoviesListFromPath(let path):
                 let page = state.page
                 return .run { send in
                     do {
@@ -120,22 +142,17 @@ struct MoviesListReducer: Reducer {
                     }
                 }
             case .categorySelected(let category):
-                if state.selectedCategory != category {
-                    state.moviesList = IdentifiedArrayOf<PersistantMovieData>()
-                    state.page = 1
-                }
                 state.selectedCategory = category
                 switch category {
                 case .upcoming:
-                    return .send(.fetchMoviesListFromPath(path: Endpoints.upcoming.path, modelContext: state.modelContext))
+                    return .send(.fetchMoviesListFromPath(path: Endpoints.upcoming.path))
                 case .topRated:
-                    return .send(.fetchMoviesListFromPath(path: Endpoints.topRated.path, modelContext: state.modelContext))
+                    return .send(.fetchMoviesListFromPath(path: Endpoints.topRated.path))
                 case .nowPlaying:
-                    return .send(.fetchMoviesListFromPath(path: Endpoints.nowPlaying.path, modelContext: state.modelContext))
+                    return .send(.fetchMoviesListFromPath(path: Endpoints.nowPlaying.path))
                 }
             case .searchStarted(searchText: let searchText):
-                let filterdList = state.moviesList.filter {$0.originalTitle.contains(searchText)}
-                state.moviesList = filterdList
+
                 return .none
             case .favoriteTapped(let movie):
                 let path = Endpoints.favorite(movie.id).path
@@ -162,16 +179,25 @@ struct MoviesListReducer: Reducer {
             case .movieTapped(let movie):
                 state.selectedMovie = MovieDetailsReducer.State(movie: movie)
                 return .none
-            case .moviesResponse(let movies):
-                state.moviesList += IdentifiedArrayOf(uniqueElements: movies)
+            case .moviesResponse(_):
+//                state.moviesList += IdentifiedArrayOf(uniqueElements: movies)
                 return .none
             case .saveMoviesLocally(.success(let movies)):
-                let modelContext = state.modelContext
-                let selectedCategory = state.selectedCategory
-                return .run { send in
-                    let persistenMovies = await saveMoviesIfNeeded(modelContext: modelContext, movies: movies, selectedCategory: selectedCategory)
-                    return await send(.moviesResponse(persistenMovies))
+                var moviesDataArray = IdentifiedArrayOf<MovieDataModel>()
+                movies.forEach { fetchedMovie in
+                    let movie = MovieDataModel(category: state.selectedCategory, model: fetchedMovie)
+                    moviesDataArray.append(movie)
                 }
+                switch state.selectedCategory {
+                case .upcoming:
+                    state.$upcomingMoviesList.withLock {$0 += moviesDataArray}
+                case .nowPlaying:
+                    state.$nowPlayingMoviesList.withLock {$0 += moviesDataArray}
+                case .topRated:
+                    state.$topRatedMoviesList.withLock {$0 += moviesDataArray}
+                }
+                return .none
+
             case .saveMoviesLocally(.failure(let error)):
                 print(error.localizedDescription)
                 return .none
@@ -184,38 +210,41 @@ struct MoviesListReducer: Reducer {
         }
     }
     
-    struct State: Equatable {
-        var moviesList = IdentifiedArrayOf<PersistantMovieData>()
-        var favoritesMoviesList = IdentifiedArrayOf<PersistantMovieData>()
-        var selectedCategory: MovieCategory = .upcoming
-        var categoryTitel: String = "Filter By Category"
-        let categoryFilter = [MovieCategory.upcoming, MovieCategory.topRated, MovieCategory.nowPlaying]
-        var shouldNavigateToMovieDetailsView: Bool = false
-        var selectedMovieId: MovieDataModel? = nil
-        var movieTitleSearchText: String = ""
-        var selectedMovieItem: MovieDataModel? = nil
-        var page: Int = 1
-        var modelContext: ModelContext?
-        @PresentationState var selectedMovie: MovieDetailsReducer.State?
-    }
     
-    enum Action: Equatable {
-        case categorySelected(category: MovieCategory)
-        case searchStarted(searchText: String)
-        case favoriteTapped(movie: PersistantMovieData)
-        case movieTapped(movie: PersistantMovieData)
-        case moviesResponse(IdentifiedArrayOf<PersistantMovieData>)
-        case movieDetailsResponse(TaskResult<MovieDataModel>)
-        case fetchMoviesListFromPath(path: String, modelContext: ModelContext?)
-        case fetchMovieData(movieId: Int)
-        case toggleMovieFavorite(movie: PersistantMovieData)
-        case selectedMovie(PresentationAction<MovieDetailsReducer.Action>)
-        case loadNextPage
-        case saveMoviesLocally(TaskResult<[MovieDataModel]>)
-        case fetchMoviesFromLocalStorage(ModelContext, MovieCategory)
-        case fetchFavoritesMovies(ModelContext)
-        
-    }
+    
+    
+   
+    
+    
+    
+    
+//    @MainActor
+//    func saveMoviesIfNeeded(modelContext: ModelContext?, movies: [MovieDataNetworkModel], selectedCategory: MovieCategory) -> IdentifiedArrayOf<MovieDataModel> {
+//        var persistenMovies = IdentifiedArrayOf<MovieDataModel>()
+//        for movie in movies {
+//            let persistentMovie = MovieDataModel(isFavorite: false, category: selectedCategory, model: movie)
+//            persistenMovies.append(persistentMovie)
+//        }
+//        var insertionCandidates = persistenMovies
+//        let fetchDescriptor = FetchDescriptor<MovieDataModel>()
+//        
+//        if let storedMovies = try? modelContext?.fetch(fetchDescriptor) {
+//            for storedMovie in storedMovies {
+//                if let _ = insertionCandidates[id: storedMovie.id] {
+//                    insertionCandidates.remove(id: storedMovie.id)
+//                }
+//            }
+//        }
+//        print(persistenMovies)
+//        for newMovie in insertionCandidates {
+//            print("Shauli: New Movie inserted")
+//            modelContext?.insert(newMovie)
+//        }
+//        
+//        try? modelContext?.save()
+//        return persistenMovies
+//        
+//    }
     
 }
 

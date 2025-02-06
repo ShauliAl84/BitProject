@@ -8,12 +8,16 @@
 import Foundation
 import ComposableArchitecture
 
-struct MovieDetailsReducer: Reducer {
-    struct State: Equatable {
-        let movie: PersistantMovieData
+@Reducer
+struct MovieDetailsReducer {
+    
+    @ObservableState
+    struct State:  Equatable {
+        let movie: MovieDataModel
     }
     
-    enum Action: Equatable {
+    enum Action: BindableAction, Equatable {
+        case binding(BindingAction<State>)
         case backButtonTapped
     }
     
@@ -21,6 +25,8 @@ struct MovieDetailsReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .backButtonTapped:
+                return .none
+            case .binding:
                 return .none
             }
         }

@@ -32,7 +32,7 @@ struct MainTabView: View {
 
 #Preview {
     
-    let schema = Schema([PersistantMovieData.self, CachedImage.self])
+    let schema = Schema([CachedImage.self])
     let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
     let container = try! ModelContainer(for: schema, configurations: [config])
     let imageCacheManager = ImageCacheManager(container: container)

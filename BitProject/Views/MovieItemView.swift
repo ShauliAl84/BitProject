@@ -12,7 +12,7 @@ import SwiftData
 
 struct MovieItemView: View {
     
-    var movieItem: PersistantMovieData
+    var movieItem: MovieDataModel
     var favoriteTapeed: () -> ()
     var movieTapeed: () -> ()
     
@@ -55,15 +55,15 @@ struct MovieItemView: View {
     }
 }
 
-#Preview {
-    let schema = Schema([PersistantMovieData.self, CachedImage.self])
-    let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-    let container = try! ModelContainer(for: schema, configurations: [config])
-    let imageCacheManager = ImageCacheManager(container: container)
-    
-    MovieItemView(movieItem: PersistantMovieData(isFavorite: false, category: .nowPlaying, movieDataModel: MovieDataModel.mock)) {
-        
-    } movieTapeed: {
-        
-    }.environment(imageCacheManager)
-}
+//#Preview {
+//    let schema = Schema([CachedImage.self])
+//    let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+//    let container = try! ModelContainer(for: schema, configurations: [config])
+//    let imageCacheManager = ImageCacheManager(container: container)
+//    
+//    MovieItemView(movieItem: MovieDataModel(isFavorite: false, category: .nowPlaying, model: MovieDataModel)) {
+//        
+//    } movieTapeed: {
+//        
+//    }.environment(imageCacheManager)
+//}

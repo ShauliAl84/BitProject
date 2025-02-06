@@ -10,44 +10,43 @@ import ComposableArchitecture
 import SwiftData
 
 struct MoviesList: View {
-    let store: StoreOf<MoviesListReducer>
+    @Bindable var store: StoreOf<MoviesListReducer>
     let columns = Array(repeating: GridItem(.flexible()), count: 3)
-    @Environment(\.modelContext) var modelContext
+    
 
     var body: some View {
-        
         NavigationStack {
-            WithViewStore(store, observe: {$0}) { viewStore in
-                VStack {
-                    Picker(viewStore.categoryTitel, selection: viewStore.binding(get: \.selectedCategory, send: MoviesListReducer.Action.categorySelected)) {
-                        ForEach(viewStore.categoryFilter, id:\.self) {
-                            Text($0.rawValue)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    ScrollView {
-                        LazyVGrid(columns: columns) {
-                            ForEach(viewStore.moviesList) { movie in
-                                MovieItemView(movieItem: movie) {
-                                    viewStore.send(.favoriteTapped(movie: movie))
-                                } movieTapeed: {
-                                    viewStore.send(.movieTapped(movie: movie))
-                                }
-                            }
-                        }
-                        .onAppear {
-                            viewStore.send(.fetchMoviesFromLocalStorage(modelContext, MovieCategory.upcoming))
-                            viewStore.send(.fetchMoviesListFromPath(path: Endpoints.upcoming.path, modelContext: modelContext))
-                        }
-                        .navigationDestination(store: self.store.scope(state: \.$selectedMovie, action: {.selectedMovie($0)})) { store in
-                            MovieDetails(store: store)
-                        }
-                    }
-                    .onScrollPhaseChange { oldPhase, newPhase in
-                        viewStore.send(.loadNextPage)
+            VStack {
+                Picker(store.categoryTitel, selection: $store.selectedCategory) {
+                    ForEach(store.categoryFilter, id:\.self) {
+                        Text($0.rawValue)
                     }
                 }
+                .pickerStyle(.segmented)
+                ScrollView {
+                    LazyVGrid(columns: columns) {
+                       
+                        ForEach(store.moviesToPresent) { movie in
+                            MovieItemView(movieItem: movie) {
+                                store.send(.favoriteTapped(movie: movie))
+                            } movieTapeed: {
+                                store.send(.movieTapped(movie: movie))
+                            }
+                        }
+                    }
+                    .onAppear {
+//                        store.send(.fetchMoviesFromLocalStorage(modelContext, MovieCategory.upcoming))
+                        store.send(.fetchMoviesListFromPath(path: Endpoints.upcoming.path))
+                    }
+                    .navigationDestination(store: self.store.scope(state: \.$selectedMovie, action: {.selectedMovie($0)})) { store in
+                        MovieDetails(store: store)
+                    }
+                }
+                .onScrollPhaseChange { oldPhase, newPhase in
+                    store.send(.loadNextPage)
+                }
             }
+//            .searchable(text: $store.movieTitleSearchText)
         }
     }
 }

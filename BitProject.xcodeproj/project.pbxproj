@@ -39,7 +39,7 @@
 		5AB4C00A2D516E2F001A962F /* Exceptions for "BitProject" folder in "BitProjectTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				MovieDataModel.swift,
+				Models/MovieDataModel.swift,
 				Views/MovieDetails.swift,
 				Views/MovieItemReducer.swift,
 				Views/MovieItemView.swift,
@@ -51,7 +51,7 @@
 		5AB4C00B2D516E2F001A962F /* Exceptions for "BitProject" folder in "BitProjectUITests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				MovieDataModel.swift,
+				Models/MovieDataModel.swift,
 				Views/MovieDetails.swift,
 				Views/MovieItemReducer.swift,
 				Views/MovieItemView.swift,

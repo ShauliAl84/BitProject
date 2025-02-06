@@ -15,7 +15,7 @@ struct BitProjectApp: App {
     private let imageCacheManager: ImageCacheManager
     
     init() {
-        let schema = Schema([PersistantMovieData.self, CachedImage.self])
+        let schema = Schema([CachedImage.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         self.container = try! ModelContainer(for: schema, configurations: [config])
         self.imageCacheManager = ImageCacheManager(container: container)

@@ -10,11 +10,11 @@ import ComposableArchitecture
 
 struct MovieDetails: View {
     
-    let store: StoreOf<MovieDetailsReducer>
+    var store: StoreOf<MovieDetailsReducer>
     var body: some View {
-        WithViewStore(store, observe: {$0}) { viewStore in
+       
             VStack {
-                AsyncImage(url: URL(string: baseMediaURL + viewStore.movie.posterPath)) { image in
+                AsyncImage(url: URL(string: baseMediaURL + store.movie.posterPath)) { image in
                     image
                         .resizable()
                         .frame(height: 400)
@@ -26,14 +26,14 @@ struct MovieDetails: View {
                 }
                 ScrollView {
                     VStack(alignment: .leading) {
-                        RankingView(ranking: viewStore.movie.voteAverage)
-                        Text(viewStore.movie.originalTitle)
+                        RankingView(ranking: store.movie.voteAverage)
+                        Text(store.movie.originalTitle)
                             .font(.title)
                         VStack (alignment: .leading){
                             Text("Description")
                                 .font(.title)
                             Divider()
-                            Text(viewStore.movie.overview)
+                            Text(store.movie.overview)
                                 .font(.title2)
                             Spacer()
                         }
@@ -46,27 +46,14 @@ struct MovieDetails: View {
                 }
                 Spacer()
             }
-        }
+        
         
     }
 }
 
-struct CircleImage: View {
-    let image: Image
-    var body: some View {
-        image
-            .resizable()
-            .frame(width: 200, height: 200)
-            .clipShape(Circle())
-            .overlay {
-                Circle().stroke(.white, lineWidth: 4)
-            }
-            .shadow(radius: 7)
-    }
-}
-
 #Preview {
-//    MovieDetails(store: .init(initialState: MovieDetailsReducer.State(movie: MovieDataModel.mock), reducer: {
-//        MovieItemReducer()
-//    }))
+    let networkModel = MovieDataModel(originalTitle: "Sonic the Hedgehog 3", originalLanguage: "en", overview: "Sonic, Knuckles, and Tails reunite against a powerful new adversary, Shadow, a mysterious villain with powers unlike anything they have faced before. With their abilities outmatched in every way, Team Sonic must seek out an unlikely alliance in hopes of stopping Shadow and protecting the planet.", posterPath: "/d8Ryb8AunYAuycVKDp5HpdWPKgC.jpg", voteAverage: 7.5, releaseDate: "2025-01-01", category: "Upcoming", id: 34556, isFavorite: true)
+    MovieDetails(store: .init(initialState: MovieDetailsReducer.State(movie: networkModel), reducer: {
+        MovieDetailsReducer()
+    }))
 }

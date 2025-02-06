@@ -12,7 +12,7 @@ import ComposableArchitecture
 struct MovieItemReducer {
     @ObservableState
     struct State: Equatable {
-        var movieDataItem: MovieDataModel = MovieDataModel.mock
+//        var movieDataItem: MovieDataModel = MovieDataModel.mock
     }
     enum Action: Equatable {
         case imageDownloadCompleted
