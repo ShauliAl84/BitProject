@@ -16,6 +16,7 @@ struct MovieDataNetworkModel: Decodable, Equatable, Identifiable {
     let posterPath: String
     let voteAverage: Float
     let releaseDate: String
+    let backdropPath: String
     var id: Int
     
     enum CodingKeys: String, CodingKey {
@@ -25,6 +26,7 @@ struct MovieDataNetworkModel: Decodable, Equatable, Identifiable {
         case posterPath = "poster_path"
         case voteAverage = "vote_average"
         case releaseDate = "release_date"
+        case backdropPath = "backdrop_path"
         case id = "id"
     }
 }

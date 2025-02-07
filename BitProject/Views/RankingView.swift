@@ -6,6 +6,31 @@
 //
 
 import SwiftUI
+struct CircularProgressView: View {
+    let progress: Double
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(
+                    Color.gray.opacity(0.5),
+                    lineWidth: 10
+                )
+            Circle()
+                .trim(from: 0, to: progress)
+                .stroke(
+                    Color.pink,
+                    style: StrokeStyle(
+                        lineWidth: 10,
+                        lineCap: .round
+                    )
+                )
+                .rotationEffect(.degrees(-90))
+                .animation(.easeOut, value: progress)
+            
+        }
+    }
+}
 
 struct RankingView: View {
     var ranking: Float
@@ -13,25 +38,22 @@ struct RankingView: View {
     private let maxValue = 10.0
     
     let gradient = Gradient(colors: [.blue, .green, .pink])
-        var body: some View {
-            VStack {
-                Gauge(value: Double(ranking), in: minValue...maxValue) {
-                    Text("Movie Rating")
-                } currentValueLabel: {
-                    Text(Int(ranking * 10), format: .number)
-                        .foregroundColor(.green)
-                } minimumValueLabel: {
-                    Text("")
-                        .foregroundColor(.blue)
-                } maximumValueLabel: {
-                    Text("")
-                        .foregroundColor(.pink)
-                }
-                .tint(gradient)
-            }
-            .gaugeStyle(.accessoryCircular)
-            .padding()
+    var body: some View {
+        VStack {
+            Spacer()
+            ZStack {
+                
+                CircularProgressView(progress: Double(ranking / 10))
+                
+                Text("\(ranking * 10, specifier: "%.0f")")
+                    .foregroundStyle(Color.black)
+                    .font(.largeTitle)
+                    .bold()
+                    
+            }.frame(width: 100, height: 100)
+            Spacer()
         }
+    }
 }
 
 #Preview {

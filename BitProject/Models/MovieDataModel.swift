@@ -15,6 +15,7 @@ struct MovieDataModel: Codable, Equatable, Identifiable {
     var originalLanguage: String
     var overview: String
     var posterPath: String
+    let backdropPath: String
     var voteAverage: Float
     var releaseDate: String
     var category: String
@@ -33,6 +34,7 @@ extension MovieDataModel {
         self.originalLanguage = model.originalLanguage
         self.overview = model.overview
         self.posterPath = model.posterPath
+        self.backdropPath = model.backdropPath
         self.voteAverage = model.voteAverage
         self.releaseDate = model.releaseDate
         self.isFavorite = isFavorite
