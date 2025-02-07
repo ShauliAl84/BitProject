@@ -12,7 +12,7 @@ import SwiftData
 
 struct MovieDetails: View {
     
-    var store: StoreOf<MovieDetailsReducer>
+    @Bindable var store: StoreOf<MovieDetailsReducer>
     @Environment(ImageCacheManager.self) private var cacheManager
     var body: some View {
         ZStack (alignment: .top){
@@ -34,7 +34,18 @@ struct MovieDetails: View {
                         Text(store.movie.releaseDate.prefix(4))
                             .font(.title2)
                             .fontWeight(.bold)
-                        
+                        Button {
+                            store.send(.showTrailer)
+                        } label: {
+                            HStack {
+                                Text("Play Trailer")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                Image(systemName: "play.fill")
+                                    .font(.largeTitle)
+                            }
+                        }
+
                         RankingView(ranking: store.movie.voteAverage)
                     }
                 }
@@ -58,6 +69,25 @@ struct MovieDetails: View {
             }
             .padding()
         }
+        .overlay(content: {
+            if store.loadingTrailer {
+                
+                Rectangle()
+                    .foregroundStyle(Color.black.opacity(0.8))
+                    .ignoresSafeArea()
+                    .overlay {
+                        ProgressView("Loading Trailer")
+                            .font(.largeTitle)
+                            .foregroundStyle(Color.white)
+                            .tint(Color.white)
+                        
+                    }
+            }
+            
+        })
+        .sheet(isPresented: $store.shouldShowTrailer, content: {
+            TrailerVideoContainer(videoId: store.trailerId)
+        })
     }
 }
 

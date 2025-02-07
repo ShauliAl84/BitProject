@@ -14,6 +14,7 @@ enum Endpoints {
     case nowPlaying
     case movieDetails(Int)
     case favorite(Int)
+    case videos(Int)
     
     var path: String {
         switch self {
@@ -27,6 +28,8 @@ enum Endpoints {
             return baseURLString + "movie/\(movieId)"
         case .favorite(_):
             return baseURLString + "account/6339531/favorite"
+        case .videos(let movieId):
+            return baseURLString + "movie/\(movieId)/videos"
         }
     }
 }
@@ -38,6 +41,7 @@ enum Endpoints {
 struct NetworkManager {
     
     var fetchMovies: @Sendable (URL, Int) async throws -> Data?
+    var fetchMovieVideos: @Sendable(URL) async throws -> Data?
     var addRemoveFavorite: @Sendable (URL, [String: Any]) async throws -> Data?
 }
 
@@ -70,6 +74,23 @@ extension NetworkManager: DependencyKey {
               "Authorization": bearerToken
             ]
             
+            let (data, _) = try await URLSession.shared.data(for: request)
+            return data
+        }, fetchMovieVideos: { url in
+            var components = URLComponents(url: url, resolvingAgainstBaseURL: true)!
+            let queryItems: [URLQueryItem] = [
+              URLQueryItem(name: "language", value: "en-US"),
+            ]
+            components.queryItems = components.queryItems.map { $0 + queryItems } ?? queryItems
+
+            var request = URLRequest(url: components.url!)
+            request.httpMethod = "GET"
+            request.timeoutInterval = 10
+            request.allHTTPHeaderFields = [
+              "accept": "application/json",
+              "Authorization": bearerToken
+            ]
+
             let (data, _) = try await URLSession.shared.data(for: request)
             return data
         }, addRemoveFavorite: { url, parameters in
