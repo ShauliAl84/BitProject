@@ -78,6 +78,12 @@ struct MoviesListReducer {
     var body: some ReducerOf<MoviesListReducer> {
         
         BindingReducer()
+            .onChange(of: \.selectedCategory) { oldValue, newValue in
+                Reduce { state, action in
+                        .send(.categorySelected(category: newValue))
+                }
+            }
+            
         
         Reduce { state, action in
             switch action {

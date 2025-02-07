@@ -35,7 +35,6 @@ struct MoviesList: View {
                         }
                     }
                     .onAppear {
-//                        store.send(.fetchMoviesFromLocalStorage(modelContext, MovieCategory.upcoming))
                         store.send(.fetchMoviesListFromPath(path: Endpoints.upcoming.path))
                     }
                     .navigationDestination(store: self.store.scope(state: \.$selectedMovie, action: {.selectedMovie($0)})) { store in

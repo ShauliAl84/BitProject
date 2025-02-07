@@ -13,7 +13,7 @@ import ComposableArchitecture
 struct MainTabView: View {
     @Environment(\.modelContext) var modelContext
     @State var store = Store(initialState: MoviesListReducer.State()) {
-        MoviesListReducer()
+        MoviesListReducer()._printChanges()
         }
    
     
