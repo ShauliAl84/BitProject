@@ -7,8 +7,8 @@
 
 import SwiftUI
 import ComposableArchitecture
-import ImageCacheKit
-import SwiftData
+import NukeUI
+import Nuke
 
 struct MovieItemView: View {
     
@@ -16,12 +16,34 @@ struct MovieItemView: View {
     var favoriteTapeed: () -> ()
     var movieTapeed: () -> ()
     
-    @Environment(ImageCacheManager.self) private var cacheManager
+    var cache: ImageCache {
+        var instance = ImageCache()
+        instance.ttl = 60 * 60 * 24
+        return instance
+    }
+    
+    var pipeline: ImagePipeline {
+        let instance = ImagePipeline {
+            $0.dataCache = try? DataCache(name: "com.shauli.latestmovieapp")
+            $0.dataCachePolicy = .automatic
+            $0.imageCache = cache
+        }
+        
+        return instance
+    }
+    
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            CachedAsyncImage(url:  URL(string: baseMediaURL + movieItem.posterPath), imageCacheManager: cacheManager)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-            
+            LazyImage(url: URL(string: baseMediaURL + movieItem.posterPath)) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .scaledToFit()
+                }
+            }
+            .pipeline(pipeline)
+
             Menu {
                 Button {
                     movieTapeed()

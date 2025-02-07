@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		5A9F6EFC2D5533FB00BF9B7B /* ImageCacheKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5AB4C0322D52ABC6001A962F /* ImageCacheKit */; };
 		5A9F6F672D55FB5C00BF9B7B /* YouTubePlayerKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5A9F6F662D55FB5C00BF9B7B /* YouTubePlayerKit */; };
+		5A9F6F722D5698B100BF9B7B /* Nuke in Frameworks */ = {isa = PBXBuildFile; productRef = 5A9F6F712D5698B100BF9B7B /* Nuke */; };
+		5A9F6F742D5698B100BF9B7B /* NukeExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 5A9F6F732D5698B100BF9B7B /* NukeExtensions */; };
+		5A9F6F762D5698B100BF9B7B /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 5A9F6F752D5698B100BF9B7B /* NukeUI */; };
+		5A9F6F782D5698B100BF9B7B /* NukeVideo in Frameworks */ = {isa = PBXBuildFile; productRef = 5A9F6F772D5698B100BF9B7B /* NukeVideo */; };
 		5AA6CBF52D5531A500ABDCE0 /* ImageCacheKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5AA6CBF42D5531A500ABDCE0 /* ImageCacheKit */; };
 		5AB4BFF42D516CC4001A962F /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 5AB4BFF32D516CC4001A962F /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
@@ -42,7 +46,6 @@
 			membershipExceptions = (
 				Models/MovieDataModel.swift,
 				Views/MovieDetails.swift,
-				Views/MovieItemReducer.swift,
 				Views/MovieItemView.swift,
 				Views/MoviesList.swift,
 				Views/MoviesListReducer.swift,
@@ -54,7 +57,6 @@
 			membershipExceptions = (
 				Models/MovieDataModel.swift,
 				Views/MovieDetails.swift,
-				Views/MovieItemReducer.swift,
 				Views/MovieItemView.swift,
 				Views/MoviesList.swift,
 				Views/MoviesListReducer.swift,
@@ -91,9 +93,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				5A9F6EFC2D5533FB00BF9B7B /* ImageCacheKit in Frameworks */,
+				5A9F6F762D5698B100BF9B7B /* NukeUI in Frameworks */,
 				5AA6CBF52D5531A500ABDCE0 /* ImageCacheKit in Frameworks */,
+				5A9F6F782D5698B100BF9B7B /* NukeVideo in Frameworks */,
 				5A9F6F672D55FB5C00BF9B7B /* YouTubePlayerKit in Frameworks */,
 				5AB4BFF42D516CC4001A962F /* ComposableArchitecture in Frameworks */,
+				5A9F6F722D5698B100BF9B7B /* Nuke in Frameworks */,
+				5A9F6F742D5698B100BF9B7B /* NukeExtensions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -158,6 +164,10 @@
 				5AB4C0322D52ABC6001A962F /* ImageCacheKit */,
 				5AA6CBF42D5531A500ABDCE0 /* ImageCacheKit */,
 				5A9F6F662D55FB5C00BF9B7B /* YouTubePlayerKit */,
+				5A9F6F712D5698B100BF9B7B /* Nuke */,
+				5A9F6F732D5698B100BF9B7B /* NukeExtensions */,
+				5A9F6F752D5698B100BF9B7B /* NukeUI */,
+				5A9F6F772D5698B100BF9B7B /* NukeVideo */,
 			);
 			productName = BitProject;
 			productReference = 5AB4BFC32D516AE4001A962F /* BitProject.app */;
@@ -245,6 +255,7 @@
 				5AB4BFF22D516CC4001A962F /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				5AA6CBF32D5531A500ABDCE0 /* XCRemoteSwiftPackageReference "ImageCachKit" */,
 				5A9F6F652D55FB5C00BF9B7B /* XCRemoteSwiftPackageReference "YouTubePlayerKit" */,
+				5A9F6F702D5698B100BF9B7B /* XCRemoteSwiftPackageReference "Nuke" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5AB4BFC42D516AE4001A962F /* Products */;
@@ -621,6 +632,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		5A9F6F702D5698B100BF9B7B /* XCRemoteSwiftPackageReference "Nuke" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kean/Nuke.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.8.0;
+			};
+		};
 		5AA6CBF32D5531A500ABDCE0 /* XCRemoteSwiftPackageReference "ImageCachKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ShauliAl84/ImageCachKit";
@@ -644,6 +663,26 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 5A9F6F652D55FB5C00BF9B7B /* XCRemoteSwiftPackageReference "YouTubePlayerKit" */;
 			productName = YouTubePlayerKit;
+		};
+		5A9F6F712D5698B100BF9B7B /* Nuke */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5A9F6F702D5698B100BF9B7B /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = Nuke;
+		};
+		5A9F6F732D5698B100BF9B7B /* NukeExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5A9F6F702D5698B100BF9B7B /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeExtensions;
+		};
+		5A9F6F752D5698B100BF9B7B /* NukeUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5A9F6F702D5698B100BF9B7B /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeUI;
+		};
+		5A9F6F772D5698B100BF9B7B /* NukeVideo */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5A9F6F702D5698B100BF9B7B /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeVideo;
 		};
 		5AA6CBF42D5531A500ABDCE0 /* ImageCacheKit */ = {
 			isa = XCSwiftPackageProductDependency;
