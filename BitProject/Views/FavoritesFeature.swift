@@ -17,6 +17,8 @@ struct FavoritesFeature {
     
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case favoriteTapped(MovieDataModel)
+        case movieTapped(MovieDataModel)
     }
     
     var body: some ReducerOf<FavoritesFeature> {

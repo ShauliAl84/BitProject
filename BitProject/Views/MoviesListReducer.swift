@@ -40,7 +40,6 @@ struct MoviesListReducer {
         let categoryFilter = [MovieCategory.upcoming, MovieCategory.topRated, MovieCategory.nowPlaying]
         var selectedMovieItem: MovieDataModel? = nil
         var page: Int = 1
-        @Presents var selectedMovie: MovieDetailsReducer.State?
         var errorString: String = ""
         var shouldDisplayErrorAlert: Bool = false
         var searchText: String = ""
@@ -73,7 +72,6 @@ struct MoviesListReducer {
         case fetchMoviesListFromPath(path: String)
         case fetchMovieData(movieId: Int)
         case toggleMovieFavorite(movie: MovieDataModel)
-        case selectedMovie(PresentationAction<MovieDetailsReducer.Action>)
         case loadNextPage
         case saveMoviesLocally(TaskResult<[MovieDataNetworkModel]>)
         case displayError(String)
@@ -161,12 +159,8 @@ struct MoviesListReducer {
                     path = Endpoints.nowPlaying.path
                 }
                 return .send(.fetchMoviesListFromPath(path: path))
-            case .selectedMovie:
-                return .none
-                
-            case .movieDetailsResponse(.success(let movieDetails)):
-                let selectedMovie = MovieDataModel(category: state.selectedCategory, model: movieDetails)
-                state.selectedMovieItem = selectedMovie
+
+            case .movieDetailsResponse(.success(_)):
                 return .none
             case .fetchMovieData(let movieId):
                 let page = state.page
@@ -211,32 +205,9 @@ struct MoviesListReducer {
                     return .send(.fetchMoviesListFromPath(path: Endpoints.nowPlaying.path))
                 }
             
-            case .favoriteTapped(let movie):
-                let path = Endpoints.favorite(movie.id).path
-                let decoder = state.decoder
-                return .run { send in
-                    do {
-                        let parameters = [
-                            "media_type": "movie",
-                            "media_id": movie.id,
-                            "favorite": !movie.isFavorite
-                        ]
-                        if let url = URL(string: path),
-                           let data = try await apiClient.addRemoveFavorite(url, parameters) {
-                            
-                            let favoriteResponse = try decoder.decode(FavoriteResponseModel.self, from: data)
-                            if favoriteResponse.success == true {
-                                await send(.toggleMovieFavorite(movie: movie))
-                            }
-                        }
-                        
-                    } catch let error {
-                        await send(.displayError("Could not update favorite state for the movie"))
-                        print(error.localizedDescription)
-                    }
-                }
-            case .movieTapped(let movie):
-                state.selectedMovie = MovieDetailsReducer.State(movie: movie)
+            case .favoriteTapped(_):
+                return .none
+            case .movieTapped(_):
                 return .none
             case .saveMoviesLocally(.success(let movies)):
                 var moviesDataArray = IdentifiedArrayOf<MovieDataModel>()
@@ -265,9 +236,6 @@ struct MoviesListReducer {
                 return .none
             }
         
-        }
-        .ifLet(\.$selectedMovie, action: /Action.selectedMovie) {
-            MovieDetailsReducer()
         }
     }
 }

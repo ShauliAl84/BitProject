@@ -16,7 +16,7 @@ struct MovieDetails: View {
     var body: some View {
         ZStack (alignment: .top) {
             
-            LazyImage(url: URL(string: Endpoints.imageFromPath(store.movie.posterPath ?? "").path)) { state in
+            LazyImage(url: URL(string: Endpoints.imageFromPath(store.movie?.posterPath ?? "").path)) { state in
                 if let image = state.image {
                     image
                         .scaledToFill()
@@ -28,7 +28,7 @@ struct MovieDetails: View {
             
             VStack {
                 HStack(alignment: .top) {
-                    LazyImage(url: URL(string: Endpoints.imageFromPath(store.movie.posterPath ?? "").path)) { state in
+                    LazyImage(url: URL(string: Endpoints.imageFromPath(store.movie?.posterPath ?? "").path)) { state in
                         if let image = state.image {
                             image
                                 .resizable()
@@ -38,11 +38,11 @@ struct MovieDetails: View {
                     }
                         
                     VStack(spacing: 10) {
-                        Text(store.movie.originalTitle)
+                        Text(store.movie?.originalTitle ?? "Not Available")
                             .font(.system(size: 17))
                             .fontWeight(.bold)
                         
-                        Text(store.movie.releaseDate.prefix(4))
+                        Text(store.movie?.releaseDate.prefix(4) ?? "")
                             .font(.title2)
                             .fontWeight(.bold)
                         Button {
@@ -57,7 +57,7 @@ struct MovieDetails: View {
                             }
                         }
 
-                        RankingView(ranking: store.movie.voteAverage)
+                        RankingView(ranking: store.movie?.voteAverage ?? 0)
                     }
                 }
                 .containerRelativeFrame(.horizontal, count: 2, span: 2, spacing: 10)
@@ -67,15 +67,13 @@ struct MovieDetails: View {
                         .fontWeight(.bold)
                     ScrollView {
                         VStack {
-                            Text(store.movie.overview)
+                            Text(store.movie?.overview ?? "")
                                 .font(.title2)
                                 .fontWeight(.semibold)
                         }
                         .padding(.all, 10)
                         .containerRelativeFrame([.horizontal])
                     }
-                    .safeAreaInset(edge: .bottom) { Color.clear.frame(height: 50) } 
-                    
                 }
                 .padding()
                 
@@ -101,21 +99,25 @@ struct MovieDetails: View {
         })
         .sheet(isPresented: $store.shouldShowTrailer, content: {
             TrailerVideoContainer(videoId: store.trailerId)
+                .onDisappear {
+                    store.shouldShowTrailer = false
+                }
         })
         .alert("Trailer Fetching Error", isPresented: $store.shouldDisplayError) {
             
         } message: {
             Text(store.errorString)
         }
+        
 
     }
 }
 
-#Preview {
-    
-    
-    let networkModel = MovieDataModel(originalTitle: "Sonic the Hedgehog 3", originalLanguage: "en", overview: "Sonic, Knuckles, and Tails reunite against a powerful new adversary, Shadow, a mysterious villain with powers unlike anything they have faced before. With their abilities outmatched in every way, Team Sonic must seek out an unlikely alliance in hopes of stopping Shadow and protecting the planet.", posterPath: "/d8Ryb8AunYAuycVKDp5HpdWPKgC.jpg", backdropPath: "/zOpe0eHsq0A2NvNyBbtT6sj53qV.jpg", voteAverage: 7.5, releaseDate: "2025-01-01", category: "Upcoming", id: 34556, isFavorite: true)
-    MovieDetails(store: .init(initialState: MovieDetailsReducer.State(movie: networkModel), reducer: {
-        MovieDetailsReducer()
-    }))
-}
+//#Preview {
+//    
+//    
+//    let networkModel = MovieDataModel(originalTitle: "Sonic the Hedgehog 3", originalLanguage: "en", overview: "Sonic, Knuckles, and Tails reunite against a powerful new adversary, Shadow, a mysterious villain with powers unlike anything they have faced before. With their abilities outmatched in every way, Team Sonic must seek out an unlikely alliance in hopes of stopping Shadow and protecting the planet.", posterPath: "/d8Ryb8AunYAuycVKDp5HpdWPKgC.jpg", backdropPath: "/zOpe0eHsq0A2NvNyBbtT6sj53qV.jpg", voteAverage: 7.5, releaseDate: "2025-01-01", category: "Upcoming", id: 34556, isFavorite: true)
+//    MovieDetails(store: .init(initialState: MovieDetailsReducer.State(movie: networkModel), reducer: {
+//        MovieDetailsReducer()
+//    }))
+//}

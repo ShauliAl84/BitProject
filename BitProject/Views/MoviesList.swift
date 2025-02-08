@@ -40,9 +40,9 @@ struct MoviesList: View {
                         store.send(.fetchFromLocal)
                         store.send(.fetchMoviesListFromPath(path: Endpoints.upcoming.path))
                     }
-                    .navigationDestination(store: self.store.scope(state: \.$selectedMovie, action: {.selectedMovie($0)})) { store in
-                        MovieDetails(store: store)
-                    }
+//                    .navigationDestination(store: self.store.scope(state: \.$selectedMovie, action: {.selectedMovie($0)})) { store in
+//                        MovieDetails(store: store)
+//                    }
                 }
                 .onScrollPhaseChange { oldPhase, newPhase in
                     store.send(.loadNextPage)

@@ -14,7 +14,10 @@ struct BitProjectApp: App {
    
     var body: some Scene {
         WindowGroup {
-            MainTabView()
+            MainTabView(store: .init(initialState: MainFeature.State(moviesList: MoviesListReducer.State(),
+                                                                     favoritesMoviesList: FavoritesFeature.State()), reducer: {
+                MainFeature()
+            }))
         }
     }
 }

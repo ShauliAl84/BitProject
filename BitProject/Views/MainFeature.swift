@@ -21,6 +21,9 @@ struct MainFeature {
         var currentTab: Tab = .moviesList
         var moviesList: MoviesListReducer.State
         var favoritesMoviesList: FavoritesFeature.State
+        var errorString: String = ""
+        var shouldDisplayErrorAlert: Bool = false
+        @Presents var selectedMovie: MovieDetailsReducer.State?
         var decoder: JSONDecoder {
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
@@ -28,11 +31,16 @@ struct MainFeature {
         }
     }
     
-    enum Action:Equatable {
+    enum Action:BindableAction, Equatable {
+        case binding(BindingAction<State>)
         case moviesListActions(MoviesListReducer.Action)
         case favoritesListActions(FavoritesFeature.Action)
         case selectedTab(Tab)
         case toggleMovieFavorite(MovieDataModel)
+        case displayError(String)
+        case selectedMovie(PresentationAction<MovieDetailsReducer.Action>)
+        case fetchTrailerInfo(Int)
+        case movieVideosFetched(TaskResult<[MovieVideoNetworkModel]>)
     }
     
     fileprivate func favoriteTapped(_ movie: MovieDataModel, _ state: MainFeature.State) -> Effect<MainFeature.Action> {
@@ -55,11 +63,12 @@ struct MainFeature {
                 }
                 
             } catch let error {
-                //                            await send(.displayError("Could not update favorite state for the movie"))
+                await send(.displayError("Could not update favorite state for the movie"))
                 print(error.localizedDescription)
             }
         }
     }
+    
     
     var body: some ReducerOf<MainFeature> {
         
@@ -71,11 +80,47 @@ struct MainFeature {
             FavoritesFeature()
         }
         
+        
+        
         Reduce {state, action in
             switch action {
+            case .selectedMovie(let action):
+                switch action {
+                
+                case .dismiss:
+                    state.selectedMovie?.shouldShowTrailer = false
+                    state.selectedMovie = nil
+                    return .none
+                case .presented(let action):
+                    switch action {
+                    case .showTrailer:
+                        guard let movieId = state.selectedMovie?.movie?.id else {return .none}
+                        state.selectedMovie?.loadingTrailer = true
+                        return .send(.fetchTrailerInfo(movieId))
+                    case .binding:
+                        state.selectedMovie?.shouldShowTrailer = false
+                        state.selectedMovie = nil
+                        return .none
+                    default:
+                        return .none
+                    }
+                }
+                
+            case .binding:
+                return .none
+            case .displayError(let errorMessage):
+                state.shouldDisplayErrorAlert = true
+                state.errorString = errorMessage
+                return .none
+                
+            
             case .favoritesListActions(let action):
                 switch action {
-                    
+                case .movieTapped(let movie):
+                    state.selectedMovie = MovieDetailsReducer.State(movie: movie)
+                    return .none
+                case .favoriteTapped(let movie):
+                    return favoriteTapped(movie, state)
                 case .binding(_):
                     return .none
                 }
@@ -91,43 +136,44 @@ struct MainFeature {
                 return .none
             case .moviesListActions(let action):
                 switch action {
-                    
-//                case .binding(_):
-//                    <#code#>
-//                case .categorySelected(category: let category):
-//                    <#code#>
+                case .movieTapped(movie: let movie):
+                    state.selectedMovie = MovieDetailsReducer.State(movie: movie)
+                    return .none
                 case .favoriteTapped(movie: let movie):
                     return favoriteTapped(movie, state)
                 default:
                     return .none
-//                case .movieTapped(movie: let movie):
-//                    <#code#>
-//                case .movieDetailsResponse(_):
-//                    <#code#>
-//                case .fetchMoviesListFromPath(path: let path):
-//                    <#code#>
-//                case .fetchMovieData(movieId: let movieId):
-//                    <#code#>
-//                
-//                    <#code#>
-//                case .selectedMovie(_):
-//                    <#code#>
-//                case .loadNextPage:
-//                    <#code#>
-//                case .saveMoviesLocally(_):
-//                    <#code#>
-//                case .displayError(_):
-//                    <#code#>
-//                case .fetchFromLocal:
-//                    <#code#>
+
                 }
-                return .none
             case let .selectedTab(tab):
                 state.currentTab = tab
                 return .none
+            case .fetchTrailerInfo(let movieId):
+                return .run { send in
+                    do {
+                        if let url = URL(string: Endpoints.videos(movieId).path),
+                           let fetchMovieVideosData = try await apiClient.fetchMovieVideos(url) {
+                            
+                            let moviesVideosResponse = try JSONDecoder().decode(MovieVideosReponseNetworkModel.self, from: fetchMovieVideosData)
+                            return await send(.movieVideosFetched(.success(moviesVideosResponse.results)))
+                        }
+                    } catch let error {
+                        return await send(.movieVideosFetched(.failure(error)))
+                    }
+                    
+                }
+            case .movieVideosFetched(.success(let videos)):
+                if let video = videos.first {
+                    state.selectedMovie?.loadingTrailer = false
+                    state.selectedMovie?.trailerId = video.key
+                    state.selectedMovie?.shouldShowTrailer.toggle()
+                }
+                return .none
+            case .movieVideosFetched(.failure(let error)):
+                return .none
             }
         }
-        .ifLet(\.moviesList.$selectedMovie, action: \.moviesListActions.selectedMovie) {
+        .ifLet(\.$selectedMovie, action: \.selectedMovie) {
             MovieDetailsReducer()
         }
     }
