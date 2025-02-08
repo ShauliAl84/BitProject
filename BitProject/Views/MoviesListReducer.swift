@@ -43,6 +43,13 @@ struct MoviesListReducer {
         @Presents var selectedMovie: MovieDetailsReducer.State?
         var errorString: String = ""
         var shouldDisplayErrorAlert: Bool = false
+        var searchText: String = ""
+        
+        var decoder: JSONDecoder {
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            return decoder
+        }
         
         var moviesToPresent: IdentifiedArrayOf<MovieDataModel> {
             switch self.selectedCategory {
@@ -70,8 +77,11 @@ struct MoviesListReducer {
         case loadNextPage
         case saveMoviesLocally(TaskResult<[MovieDataNetworkModel]>)
         case displayError(String)
+        case fetchFromLocal
         
     }
+    
+    
     
     var body: some ReducerOf<MoviesListReducer> {
         
@@ -85,6 +95,48 @@ struct MoviesListReducer {
         
         Reduce { state, action in
             switch action {
+            case .fetchFromLocal:
+                switch state.selectedCategory {
+                case .upcoming:
+                    guard let data = try? Data(contentsOf: .upcomingMoviesListFileURL) else {
+                        state.$upcomingMoviesList.withLock { $0 += IdentifiedArrayOf<MovieDataModel>() }
+                        return .none
+                    }
+                    do {
+                        let chachedList = try state.decoder.decode([MovieDataModel].self, from: data)
+                        state.$upcomingMoviesList.withLock { $0 += IdentifiedArrayOf<MovieDataModel>(uniqueElements: chachedList) }
+                        
+                    }catch let error {
+                        print(error.localizedDescription)
+                    }
+                    return .none
+                case .topRated:
+                    guard let data = try? Data(contentsOf: .topRatedMoviesListFileURL) else {
+                        state.$topRatedMoviesList.withLock { $0 += IdentifiedArrayOf<MovieDataModel>() }
+                        return .none
+                    }
+                    do {
+                        let chachedList = try state.decoder.decode([MovieDataModel].self, from: data)
+                        state.$topRatedMoviesList.withLock { $0 += IdentifiedArrayOf<MovieDataModel>(uniqueElements: chachedList) }
+                        
+                    }catch let error {
+                        print(error.localizedDescription)
+                    }
+                    return .none
+                case .nowPlaying:
+                    guard let data = try? Data(contentsOf: .nowPlayingMoviesListFileURL) else {
+                        state.$nowPlayingMoviesList.withLock { $0 += IdentifiedArrayOf<MovieDataModel>() }
+                        return .none
+                    }
+                    do {
+                        let chachedList = try state.decoder.decode([MovieDataModel].self, from: data)
+                        state.$nowPlayingMoviesList.withLock { $0 += IdentifiedArrayOf<MovieDataModel>(uniqueElements: chachedList) }
+                        
+                    }catch let error {
+                        print(error.localizedDescription)
+                    }
+                    return .none
+                }
             case .binding:
                 return .none
             case .toggleMovieFavorite(let movie):
@@ -118,12 +170,13 @@ struct MoviesListReducer {
                 return .none
             case .fetchMovieData(let movieId):
                 let page = state.page
+                let decoder = state.decoder
                 return .run { send in
                     do {
                         if let url = URL(string: Endpoints.movieDetails(movieId).path),
                            let movieData = try await apiClient.fetchMovies(url, page) {
                             
-                            let movieDetails = try JSONDecoder().decode(MovieDataNetworkModel.self, from: movieData)
+                            let movieDetails = try decoder.decode(MovieDataNetworkModel.self, from: movieData)
                             await send(.movieDetailsResponse(.success(movieDetails)))
                         }
                     } catch let error {
@@ -132,12 +185,14 @@ struct MoviesListReducer {
                 }
             case .fetchMoviesListFromPath(let path):
                 let page = state.page
+                let decoder = state.decoder
                 return .run { send in
                     do {
                         if let url = URL(string: path),
                            let fetchedMoviesData = try await apiClient.fetchMovies(url, page) {
                             print("movies downloaded")
-                            let moviesResponse = try JSONDecoder().decode(MoviesResponse.self, from: fetchedMoviesData)
+                            
+                            let moviesResponse = try decoder.decode(MoviesResponse.self, from: fetchedMoviesData)
                             await send(.saveMoviesLocally(.success(moviesResponse.results)))
                         }
                         
@@ -158,6 +213,7 @@ struct MoviesListReducer {
             
             case .favoriteTapped(let movie):
                 let path = Endpoints.favorite(movie.id).path
+                let decoder = state.decoder
                 return .run { send in
                     do {
                         let parameters = [
@@ -168,7 +224,7 @@ struct MoviesListReducer {
                         if let url = URL(string: path),
                            let data = try await apiClient.addRemoveFavorite(url, parameters) {
                             
-                            let favoriteResponse = try JSONDecoder().decode(FavoriteResponseModel.self, from: data)
+                            let favoriteResponse = try decoder.decode(FavoriteResponseModel.self, from: data)
                             if favoriteResponse.success == true {
                                 await send(.toggleMovieFavorite(movie: movie))
                             }

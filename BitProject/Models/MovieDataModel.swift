@@ -11,15 +11,15 @@ import SwiftData
 
 
 struct MovieDataModel: Codable, Equatable, Identifiable {
-    var originalTitle: String
-    var originalLanguage: String
-    var overview: String
-    var posterPath: String
-    let backdropPath: String
-    var voteAverage: Float
-    var releaseDate: String
-    var category: String
-    var id: Int
+    let originalTitle: String
+    let originalLanguage: String
+    let overview: String
+    let posterPath: String?
+    let backdropPath: String?
+    let voteAverage: Float
+    let releaseDate: String
+    let category: String
+    let id: Int
     
     var isFavorite: Bool
     

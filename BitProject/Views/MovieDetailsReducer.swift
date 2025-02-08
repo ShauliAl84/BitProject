@@ -47,7 +47,7 @@ struct MovieDetailsReducer {
             case .movieVideosFetched(.success(let videos)):
                 if let video = videos.first {
                     state.loadingTrailer = false
-                    state.trailerId = video.videoId
+                    state.trailerId = video.key
                     state.shouldShowTrailer.toggle()
                 }
                 return .none

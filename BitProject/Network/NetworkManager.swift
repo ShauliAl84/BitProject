@@ -15,7 +15,8 @@ enum Endpoints {
     case movieDetails(Int)
     case favorite(Int)
     case videos(Int)
-    
+    case imageFromPath(String)
+        
     var path: String {
         switch self {
         case .upcoming:
@@ -30,6 +31,8 @@ enum Endpoints {
             return baseURLString + "account/6339531/favorite"
         case .videos(let movieId):
             return baseURLString + "movie/\(movieId)/videos"
+        case .imageFromPath(let moviePosterPath):
+            return baseMediaURL + moviePosterPath
         }
     }
 }

@@ -23,6 +23,8 @@ struct MoviesList: View {
                     }
                 }
                 .pickerStyle(.segmented)
+                .padding(.horizontal)
+                
                 ScrollView {
                     LazyVGrid(columns: columns) {
                        
@@ -35,6 +37,7 @@ struct MoviesList: View {
                         }
                     }
                     .onAppear {
+                        store.send(.fetchFromLocal)
                         store.send(.fetchMoviesListFromPath(path: Endpoints.upcoming.path))
                     }
                     .navigationDestination(store: self.store.scope(state: \.$selectedMovie, action: {.selectedMovie($0)})) { store in
@@ -50,8 +53,9 @@ struct MoviesList: View {
             } message: {
                 Text(store.errorString)
             }
-
+            .navigationTitle("Movies List")
         }
+        
     }
 }
 

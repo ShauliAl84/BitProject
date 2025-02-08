@@ -17,7 +17,7 @@ struct MovieItemView: View {
     var movieTapeed: () -> ()
     
     var cache: ImageCache {
-        var instance = ImageCache()
+        let instance = ImageCache()
         instance.ttl = 60 * 60 * 24
         return instance
     }
@@ -34,7 +34,7 @@ struct MovieItemView: View {
     
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            LazyImage(url: URL(string: baseMediaURL + movieItem.posterPath)) { state in
+            LazyImage(url: URL(string: Endpoints.imageFromPath(movieItem.posterPath ?? "").path)) { state in
                 if let image = state.image {
                     image
                         .resizable()

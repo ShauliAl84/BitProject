@@ -16,7 +16,7 @@ struct MovieVideoDataModel: Codable, Equatable, Identifiable {
 extension MovieVideoDataModel {
     init(model: MovieVideoNetworkModel) {
         self.name = model.name
-        self.key = model.videoId
+        self.key = model.key
         self.id = model.id
     }
 }

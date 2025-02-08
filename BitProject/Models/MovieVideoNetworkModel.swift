@@ -14,12 +14,12 @@ struct MovieVideosReponseNetworkModel: Decodable, Equatable {
 
 struct MovieVideoNetworkModel: Decodable, Equatable, Identifiable {
     let name: String
-    let videoId: String
+    let key: String
     let id: String
     
-    enum CodingKeys: String, CodingKey {
-        case name = "name"
-        case videoId = "key"
-        case id = "id"
-    }
+//    enum CodingKeys: String, CodingKey {
+//        case name = "name"
+//        case videoId = "key"
+//        case id = "id"
+//    }
 }

@@ -11,7 +11,7 @@ import ComposableArchitecture
 
 struct FavoriteMoviesView: View {
     let columns = Array(repeating: GridItem(.flexible()), count: 3)
-    var store: StoreOf<MoviesListReducer>
+     var store: StoreOf<MoviesListReducer>
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -24,7 +24,6 @@ struct FavoriteMoviesView: View {
                         }
                     }
                 }
-
                 .navigationDestination(store: self.store.scope(state: \.$selectedMovie, action: {.selectedMovie($0)})) { store in
                     MovieDetails(store: store)
                 }

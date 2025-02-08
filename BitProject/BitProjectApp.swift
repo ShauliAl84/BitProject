@@ -11,23 +11,10 @@ import ImageCacheKit
 
 @main
 struct BitProjectApp: App {
-    private let container: ModelContainer
-    private let imageCacheManager: ImageCacheManager
-    
-    init() {
-        let schema = Schema([CachedImage.self])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        self.container = try! ModelContainer(for: schema, configurations: [config])
-        self.imageCacheManager = ImageCacheManager(container: container)
-    }
-
-
+   
     var body: some Scene {
         WindowGroup {
             MainTabView()
-            .environment(imageCacheManager)
-            
         }
-        .modelContainer(container)
     }
 }
