@@ -16,6 +16,12 @@ struct MainFeature {
         case favorites
     }
     
+    var decoder: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
+    }
+    
     @ObservableState
     struct State: Equatable {
         var currentTab: Tab = .moviesList
@@ -24,11 +30,7 @@ struct MainFeature {
         var errorString: String = ""
         var shouldDisplayErrorAlert: Bool = false
         @Presents var selectedMovie: MovieDetailsReducer.State?
-        var decoder: JSONDecoder {
-            let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-            return decoder
-        }
+        
     }
     
     enum Action:BindableAction, Equatable {
@@ -45,7 +47,7 @@ struct MainFeature {
     
     fileprivate func favoriteTapped(_ movie: MovieDataModel, _ state: MainFeature.State) -> Effect<MainFeature.Action> {
         let path = Endpoints.favorite(movie.id).path
-        let decoder = state.decoder
+        let decoder = decoder
         return .run { send in
             do {
                 let parameters = [
@@ -154,7 +156,7 @@ struct MainFeature {
                         if let url = URL(string: Endpoints.videos(movieId).path),
                            let fetchMovieVideosData = try await apiClient.fetchMovieVideos(url) {
                             
-                            let moviesVideosResponse = try JSONDecoder().decode(MovieVideosReponseNetworkModel.self, from: fetchMovieVideosData)
+                            let moviesVideosResponse = try decoder.decode(MovieVideosReponseNetworkModel.self, from: fetchMovieVideosData)
                             return await send(.movieVideosFetched(.success(moviesVideosResponse.results)))
                         }
                     } catch let error {
@@ -170,6 +172,7 @@ struct MainFeature {
                 }
                 return .none
             case .movieVideosFetched(.failure(let error)):
+                print(error.localizedDescription)
                 return .none
             }
         }

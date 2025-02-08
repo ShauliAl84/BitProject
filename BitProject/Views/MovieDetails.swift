@@ -99,9 +99,6 @@ struct MovieDetails: View {
         })
         .sheet(isPresented: $store.shouldShowTrailer, content: {
             TrailerVideoContainer(videoId: store.trailerId)
-                .onDisappear {
-                    store.shouldShowTrailer = false
-                }
         })
         .alert("Trailer Fetching Error", isPresented: $store.shouldDisplayError) {
             

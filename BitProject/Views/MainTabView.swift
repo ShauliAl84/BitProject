@@ -26,7 +26,7 @@ struct MainTabView: View {
                     }
                 }
                 
-                .navigationDestination(store: self.store.scope(state: \.$selectedMovie , action: {.selectedMovie($0)})) { store in
+                .navigationDestination(store: self.store.scope(state: \.$selectedMovie , action: \.selectedMovie)) { store in
                     MovieDetails(store: store)
                 }
                 .alert("Error", isPresented: $store.shouldDisplayErrorAlert) {

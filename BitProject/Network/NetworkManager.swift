@@ -109,7 +109,6 @@ extension NetworkManager: DependencyKey {
             request.httpBody = postData
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {return data}
-            print(String(data: data, encoding: .utf8))
             return data
             
         }

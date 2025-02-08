@@ -184,7 +184,7 @@ struct MoviesListReducer {
                     do {
                         if let url = URL(string: path),
                            let fetchedMoviesData = try await apiClient.fetchMovies(url, page) {
-                            print("movies downloaded")
+                            
                             
                             let moviesResponse = try decoder.decode(MoviesResponse.self, from: fetchedMoviesData)
                             await send(.saveMoviesLocally(.success(moviesResponse.results)))
