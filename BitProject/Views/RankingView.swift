@@ -34,10 +34,7 @@ struct CircularProgressView: View {
 
 struct RankingView: View {
     var ranking: Float
-    private let minValue = 1.0
-    private let maxValue = 10.0
-    
-    let gradient = Gradient(colors: [.blue, .green, .pink])
+
     var body: some View {
         VStack {
             Spacer()

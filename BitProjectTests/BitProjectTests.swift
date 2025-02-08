@@ -6,10 +6,14 @@
 //
 
 import XCTest
+import ComposableArchitecture
 @testable import BitProject
 
 final class BitProjectTests: XCTestCase {
 
+    var mock: MovieDataNetworkModel = MovieDataNetworkModel(originalTitle: "Sonic the Hedgehog 3", originalLanguage: "en", overview: "Sonic, Knuckles, and Tails reunite against a powerful new adversary, Shadow, a mysterious villain with powers unlike anything they have faced before. With their abilities outmatched in every way, Team Sonic must seek out an unlikely alliance in hopes of stopping Shadow and protecting the planet.", posterPath: "/d8Ryb8AunYAuycVKDp5HpdWPKgC.jpg", voteAverage: 7.5, releaseDate: "2025-01-01", id: 234545)
+    
+    
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
@@ -31,6 +35,15 @@ final class BitProjectTests: XCTestCase {
         self.measure {
             // Put the code you want to measure the time of here.
         }
+    }
+    
+    func testFavoriteToggle() {
+        let store = TestStore(initialState: MoviesListReducer.State()) {
+            MoviesListReducer()
+        }
+        
+        
+
     }
 
 }

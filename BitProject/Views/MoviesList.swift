@@ -45,7 +45,12 @@ struct MoviesList: View {
                     store.send(.loadNextPage)
                 }
             }
-//            .searchable(text: $store.movieTitleSearchText)
+            .alert("Error", isPresented: $store.shouldDisplayErrorAlert) {
+                
+            } message: {
+                Text(store.errorString)
+            }
+
         }
     }
 }

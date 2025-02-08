@@ -88,6 +88,12 @@ struct MovieDetails: View {
         .sheet(isPresented: $store.shouldShowTrailer, content: {
             TrailerVideoContainer(videoId: store.trailerId)
         })
+        .alert("Trailer Fetching Error", isPresented: $store.shouldDisplayError) {
+            
+        } message: {
+            Text(store.errorString)
+        }
+
     }
 }
 

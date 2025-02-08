@@ -80,11 +80,6 @@
 			path = BitProjectTests;
 			sourceTree = "<group>";
 		};
-		5AB4BFE22D516AEB001A962F /* BitProjectUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = BitProjectUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,7 +120,6 @@
 			children = (
 				5AB4BFC52D516AE4001A962F /* BitProject */,
 				5AB4BFD82D516AEA001A962F /* BitProjectTests */,
-				5AB4BFE22D516AEB001A962F /* BitProjectUITests */,
 				5AB4BFC42D516AE4001A962F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -208,9 +202,6 @@
 			);
 			dependencies = (
 				5AB4BFE12D516AEB001A962F /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				5AB4BFE22D516AEB001A962F /* BitProjectUITests */,
 			);
 			name = BitProjectUITests;
 			packageProductDependencies = (

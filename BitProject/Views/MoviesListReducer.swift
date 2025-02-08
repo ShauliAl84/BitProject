@@ -36,14 +36,13 @@ struct MoviesListReducer {
         @Shared(.favoritesMoviesList) var favoritesMoviesList
         
         var selectedCategory: MovieCategory = .upcoming
-        var categoryTitel: String = "Filter By Category"
+        let categoryTitel: String = "Filter By Category"
         let categoryFilter = [MovieCategory.upcoming, MovieCategory.topRated, MovieCategory.nowPlaying]
-        var shouldNavigateToMovieDetailsView: Bool = false
-        var selectedMovieId: MovieDataModel? = nil
-        var movieTitleSearchText: String = ""
         var selectedMovieItem: MovieDataModel? = nil
         var page: Int = 1
         @Presents var selectedMovie: MovieDetailsReducer.State?
+        var errorString: String = ""
+        var shouldDisplayErrorAlert: Bool = false
         
         var moviesToPresent: IdentifiedArrayOf<MovieDataModel> {
             switch self.selectedCategory {
@@ -61,10 +60,8 @@ struct MoviesListReducer {
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case categorySelected(category: MovieCategory)
-        case searchStarted(searchText: String)
         case favoriteTapped(movie: MovieDataModel)
         case movieTapped(movie: MovieDataModel)
-        case moviesResponse(IdentifiedArrayOf<MovieDataModel>)
         case movieDetailsResponse(TaskResult<MovieDataNetworkModel>)
         case fetchMoviesListFromPath(path: String)
         case fetchMovieData(movieId: Int)
@@ -72,6 +69,7 @@ struct MoviesListReducer {
         case selectedMovie(PresentationAction<MovieDetailsReducer.Action>)
         case loadNextPage
         case saveMoviesLocally(TaskResult<[MovieDataNetworkModel]>)
+        case displayError(String)
         
     }
     
@@ -157,9 +155,7 @@ struct MoviesListReducer {
                 case .nowPlaying:
                     return .send(.fetchMoviesListFromPath(path: Endpoints.nowPlaying.path))
                 }
-            case .searchStarted(searchText: let searchText):
-
-                return .none
+            
             case .favoriteTapped(let movie):
                 let path = Endpoints.favorite(movie.id).path
                 return .run { send in
@@ -179,14 +175,12 @@ struct MoviesListReducer {
                         }
                         
                     } catch let error {
+                        await send(.displayError("Could not update favorite state for the movie"))
                         print(error.localizedDescription)
                     }
                 }
             case .movieTapped(let movie):
                 state.selectedMovie = MovieDetailsReducer.State(movie: movie)
-                return .none
-            case .moviesResponse(_):
-//                state.moviesList += IdentifiedArrayOf(uniqueElements: movies)
                 return .none
             case .saveMoviesLocally(.success(let movies)):
                 var moviesDataArray = IdentifiedArrayOf<MovieDataModel>()
@@ -206,52 +200,20 @@ struct MoviesListReducer {
 
             case .saveMoviesLocally(.failure(let error)):
                 print(error.localizedDescription)
-                return .none
-            case .movieDetailsResponse(.failure(_)):
+                return .send(.displayError(error.localizedDescription))
+            case .movieDetailsResponse(.failure(let error)):
+                return .send(.displayError(error.localizedDescription))
+            case .displayError(let errorMessage):
+                state.errorString = errorMessage
+                state.shouldDisplayErrorAlert = true
                 return .none
             }
+        
         }
         .ifLet(\.$selectedMovie, action: /Action.selectedMovie) {
             MovieDetailsReducer()
         }
     }
-    
-    
-    
-    
-   
-    
-    
-    
-    
-//    @MainActor
-//    func saveMoviesIfNeeded(modelContext: ModelContext?, movies: [MovieDataNetworkModel], selectedCategory: MovieCategory) -> IdentifiedArrayOf<MovieDataModel> {
-//        var persistenMovies = IdentifiedArrayOf<MovieDataModel>()
-//        for movie in movies {
-//            let persistentMovie = MovieDataModel(isFavorite: false, category: selectedCategory, model: movie)
-//            persistenMovies.append(persistentMovie)
-//        }
-//        var insertionCandidates = persistenMovies
-//        let fetchDescriptor = FetchDescriptor<MovieDataModel>()
-//        
-//        if let storedMovies = try? modelContext?.fetch(fetchDescriptor) {
-//            for storedMovie in storedMovies {
-//                if let _ = insertionCandidates[id: storedMovie.id] {
-//                    insertionCandidates.remove(id: storedMovie.id)
-//                }
-//            }
-//        }
-//        print(persistenMovies)
-//        for newMovie in insertionCandidates {
-//            print("Shauli: New Movie inserted")
-//            modelContext?.insert(newMovie)
-//        }
-//        
-//        try? modelContext?.save()
-//        return persistenMovies
-//        
-//    }
-    
 }
 
 enum MovieCategory: String {

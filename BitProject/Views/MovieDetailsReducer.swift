@@ -19,14 +19,16 @@ struct MovieDetailsReducer {
         var shouldShowTrailer: Bool = false
         var loadingTrailer: Bool = false
         var trailerId: String = ""
+        var errorString: String = ""
+        var shouldDisplayError: Bool = false
     }
     
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case backButtonTapped
         case showTrailer
         case fetchTrailerInfo(Int)
         case movieVideosFetched(TaskResult<[MovieVideoNetworkModel]>)
+        case showError(String)
     }
     
     
@@ -36,8 +38,12 @@ struct MovieDetailsReducer {
         
         Reduce { state, action in
             switch action {
-            case .movieVideosFetched(.failure(let error)):
+            case .showError(let errorMessage):
+                state.errorString = errorMessage
+                state.shouldDisplayError = true
                 return .none
+            case .movieVideosFetched(.failure(let error)):
+                return .send(.showError(error.localizedDescription))
             case .movieVideosFetched(.success(let videos)):
                 if let video = videos.first {
                     state.loadingTrailer = false
@@ -63,8 +69,6 @@ struct MovieDetailsReducer {
             case .showTrailer:
                 state.loadingTrailer = true
                 return .send(.fetchTrailerInfo(state.movie.id))
-            case .backButtonTapped:
-                return .none
             case .binding:
                 return .none
             }
